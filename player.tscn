@@ -4,6 +4,8 @@
 [ext_resource type="Script" uid="uid://bppjypnh8blxj" path="res://HitscanWeapon.cs" id="2_hqtel"]
 [ext_resource type="Script" uid="uid://bf1fylrg5lp5k" path="res://PlayerHUD.cs" id="3_sweqy"]
 [ext_resource type="Script" uid="uid://crr1d7pgdpyg2" path="res://HealthComponent.cs" id="4_2hs0m"]
+[ext_resource type="Script" uid="uid://8ilabrph0hmf" path="res://KillFeed.cs" id="4_sweqy"]
+[ext_resource type="Script" uid="uid://dvvsfi1xyi0oh" path="res://Crosshair.cs" id="5_2hs0m"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_fimxg"]
 
@@ -53,14 +55,36 @@ offset_right = 418.0
 offset_bottom = 122.0
 
 [node name="HPBar" type="ProgressBar" parent="HUD" unique_id=350689561]
-offset_left = -6.0
-offset_top = 541.0
-offset_right = 310.0
-offset_bottom = 657.0
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -66.0
+offset_right = 289.0
+grow_vertical = 0
 
 [node name="KillFeed" type="VBoxContainer" parent="HUD" unique_id=237134152]
-offset_right = 40.0
-offset_bottom = 40.0
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -211.0
+offset_bottom = 76.0
+grow_horizontal = 0
+script = ExtResource("4_sweqy")
+
+[node name="Crosshair" type="Control" parent="HUD" unique_id=1106484586]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("5_2hs0m")
 
 [node name="HealthComponent" type="Node" parent="." unique_id=1401377186]
 script = ExtResource("4_2hs0m")

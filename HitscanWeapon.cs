@@ -6,25 +6,56 @@ public partial class HitscanWeapon : RayCast3D
 	[Export] public float Damage = 25f;
 	[Export] public float FireRate = 0.15f;
 
+	[Export] public float RecoilUp = 0.04f;      // Vertical camera kick per shot (radians)
+	[Export] public float RecoilSide = 0.015f;   // Random horizontal camera jitter (radians)
+	[Export] public float RecoilRecoverySpeed = 10f;
+
+	[Export] public float BaseSpread = 0.015f;   // Base accuracy when standing still
+	[Export] public float MoveSpread = 0.08f;    // Max spread added when sprinting/jumping
+
 	private float _nextFireTime = 0f;
 	private Marker3D _muzzle;
+	private Player _ownerPlayer;
+	private Node3D _head;
+
+	private float _targetRecoilPitch = 0f;
+	private float _targetRecoilYaw = 0f;
+	private float _currentRecoilPitch = 0f;
+	private float _currentRecoilYaw = 0f;
 
 	public override void _Ready()
 	{
-		// Get reference to the Muzzle marker node
 		_muzzle = GetNodeOrNull<Marker3D>("../Muzzle");
+		_ownerPlayer = GetNodeAncestor<Player>(this);
+		_head = GetNodeOrNull<Node3D>("../"); // Parent Head node
 
-		Player playerRoot = GetNodeAncestor<Player>(this);
-		if (playerRoot != null)
+		if (_ownerPlayer != null)
 		{
-			AddException(playerRoot);
+			AddException(_ownerPlayer);
 		}
 	}
 
 	public override void _Process(double delta)
 	{
-		Player playerRoot = GetNodeAncestor<Player>(this);
-		if (playerRoot != null && !playerRoot.IsMultiplayerAuthority()) return;
+		if (_ownerPlayer != null && !_ownerPlayer.IsMultiplayerAuthority()) return;
+
+		float dt = (float)delta;
+
+		// return camera recoil back to center
+		_targetRecoilPitch = Mathf.Lerp(_targetRecoilPitch, 0f, dt * RecoilRecoverySpeed);
+		_targetRecoilYaw = Mathf.Lerp(_targetRecoilYaw, 0f, dt * RecoilRecoverySpeed);
+
+		float pitchDelta = Mathf.Lerp(_currentRecoilPitch, _targetRecoilPitch, dt * 25f) - _currentRecoilPitch;
+		float yawDelta = Mathf.Lerp(_currentRecoilYaw, _targetRecoilYaw, dt * 25f) - _currentRecoilYaw;
+
+		_currentRecoilPitch += pitchDelta;
+		_currentRecoilYaw += yawDelta;
+
+		if (_head != null)
+		{
+			_head.RotateX(pitchDelta);
+			_ownerPlayer.RotateY(yawDelta);
+		}
 
 		if (Input.IsActionPressed("fire"))
 		{
@@ -39,34 +70,52 @@ public partial class HitscanWeapon : RayCast3D
 
 		_nextFireTime = currentTime + FireRate;
 
+		// 1. Calculate dynamic bullet spread based on horizontal velocity and air state
+		float speed = _ownerPlayer != null ? new Vector3(_ownerPlayer.Velocity.X, 0, _ownerPlayer.Velocity.Z).Length() : 0f;
+		float currentSpread = BaseSpread + (speed / 7.0f) * MoveSpread;
+		if (_ownerPlayer != null && !_ownerPlayer.IsOnFloor()) currentSpread += MoveSpread * 1.5f;
+
+		// Random directional offset within spread cone
+		Vector3 spreadOffset = new Vector3(
+			(float)GD.RandRange(-currentSpread, currentSpread),
+			(float)GD.RandRange(-currentSpread, currentSpread),
+			0f
+		);
+
+		Vector3 fireDirection = (-GlobalTransform.Basis.Z + GlobalTransform.Basis * spreadOffset).Normalized();
+
+		// Perform raycast check using spread direction
 		Vector3 targetPoint;
+		PhysicsDirectSpaceState3D spaceState = GetWorld3D().DirectSpaceState;
+		PhysicsRayQueryParameters3D query = PhysicsRayQueryParameters3D.Create(GlobalPosition, GlobalPosition + fireDirection * 100f);
+		query.Exclude = new Godot.Collections.Array<Rid> { _ownerPlayer.GetRid() };
 
-		if (IsColliding())
+		var result = spaceState.IntersectRay(query);
+
+		if (result.Count > 0)
 		{
-			targetPoint = GetCollisionPoint();
+			targetPoint = (Vector3)result["position"];
+			GodotObject collider = (GodotObject)result["collider"];
 
-			GodotObject collider = GetCollider();
-			
 			if (collider is Node hitNode)
 			{
 				HealthComponent health = FindHealthComponent(hitNode);
 				if (health != null)
 				{
-					Player ownerPlayer = GetNodeAncestor<Player>(this);
-					string attackerName = ownerPlayer != null ? $"Player {ownerPlayer.Name}" : "Player";
-
+					string attackerName = _ownerPlayer != null ? $"Player {_ownerPlayer.Name}" : "Player";
 					health.Rpc(nameof(HealthComponent.TakeDamage), Damage, attackerName);
 				}
 			}
 		}
 		else
 		{
-			targetPoint = GlobalPosition + (-GlobalTransform.Basis.Z * 100f);
+			targetPoint = GlobalPosition + fireDirection * 100f;
 		}
 
-		//u se Muzzle position as visual start point, falling back to camera position if missing
-		Vector3 muzzlePos = _muzzle != null ? _muzzle.GlobalPosition : GlobalPosition;
+		_targetRecoilPitch += RecoilUp;
+		_targetRecoilYaw += (float)GD.RandRange(-RecoilSide, RecoilSide);
 
+		Vector3 muzzlePos = _muzzle != null ? _muzzle.GlobalPosition : GlobalPosition;
 		Rpc(nameof(ShowTracer), muzzlePos, targetPoint);
 	}
 
