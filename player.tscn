@@ -6,22 +6,6 @@
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_fimxg"]
 
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_5vw27"]
-
-[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_h2yge"]
-panorama = SubResource("PlaceholderTexture2D_5vw27")
-energy_multiplier = 0.39
-
-[sub_resource type="Sky" id="Sky_0xm2m"]
-sky_material = SubResource("PanoramaSkyMaterial_h2yge")
-
-[sub_resource type="Environment" id="Environment_ig7tw"]
-background_mode = 2
-sky = SubResource("Sky_0xm2m")
-ambient_light_source = 3
-ambient_light_color = Color(0.4678207, 0.6372256, 0.99678224, 1)
-reflected_light_source = 2
-
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_4flbx"]
 properties/0/path = NodePath(".:position")
 properties/0/spawn = true
@@ -43,7 +27,6 @@ mesh = SubResource("CapsuleMesh_fimxg")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 
 [node name="Camera3D" type="Camera3D" parent="Head" unique_id=1479409878]
-environment = SubResource("Environment_ig7tw")
 fov = 90.7
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=1404814018]

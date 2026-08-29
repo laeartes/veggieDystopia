@@ -16,12 +16,12 @@ public partial class NetworkManager : Node3D
 
 	public override void _UnhandledInput(InputEvent @event)
 	{
-		// Press TAB to Host
+		// tab
 		if (@event.IsActionPressed("ui_focus_next")) 
 		{
 			HostGame();
 		}
-		// Press ENTER to Join
+		// enter
 		else if (@event.IsActionPressed("ui_accept")) 
 		{
 			JoinGame();
@@ -34,7 +34,6 @@ public partial class NetworkManager : Node3D
 		Multiplayer.MultiplayerPeer = _peer;
 		Multiplayer.PeerConnected += OnPeerConnected;
 		
-		// Host gets Peer ID 1
 		SpawnPlayer(1);
 		GD.Print("Server hosted on port ", Port);
 	}
@@ -48,7 +47,6 @@ public partial class NetworkManager : Node3D
 
 	private void OnPeerConnected(long id)
 	{
-		// Host spawns incoming players
 		SpawnPlayer((int)id);
 	}
 
@@ -57,7 +55,6 @@ public partial class NetworkManager : Node3D
 		Player playerInstance = PlayerScene.Instantiate<Player>();
 		playerInstance.Name = peerId.ToString();
 		
-		// Spawn players with slight horizontal separation
 		playerInstance.Position = new Vector3(peerId * 2f, 2f, 0f); 
 		AddChild(playerInstance);
 	}

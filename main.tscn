@@ -27,12 +27,22 @@ subsurf_scatter_enabled = true
 subsurf_scatter_strength = 0.13
 refraction_scale = -1.0
 
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_loteg"]
+
+[sub_resource type="Sky" id="Sky_qvog1"]
+sky_material = SubResource("ProceduralSkyMaterial_loteg")
+
+[sub_resource type="Environment" id="Environment_fimxg"]
+background_mode = 2
+sky = SubResource("Sky_qvog1")
+
 [node name="Main" type="Node3D" unique_id=38264616]
 script = ExtResource("1_ig7tw")
 PlayerScene = ExtResource("2_0xm2m")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=946937848]
-transform = Transform3D(-0.564481, -0.7814027, 0.26602852, 0.78023607, -0.39989892, 0.48094958, -0.26943082, 0.479052, 0.8354138, 0, 3.7049956, 0)
+transform = Transform3D(1, 0, 0, 0, 0.7071068, 0.7071067, 0, -0.7071068, 0.7071067, 0, 0, 0)
+shadow_enabled = true
 
 [node name="Environment" type="Node3D" parent="." unique_id=1926236311]
 
@@ -122,3 +132,6 @@ offset_bottom = 40.0
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="." unique_id=1546286507]
 _spawnable_scenes = PackedStringArray("uid://darfe6h0bpnge")
 spawn_path = NodePath("..")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=2139401063]
+environment = SubResource("Environment_fimxg")
