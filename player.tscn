@@ -1,6 +1,9 @@
 [gd_scene format=3 uid="uid://darfe6h0bpnge"]
 
 [ext_resource type="Script" uid="uid://tlwik70twbjk" path="res://Player.cs" id="1_4flbx"]
+[ext_resource type="Script" uid="uid://bppjypnh8blxj" path="res://HitscanWeapon.cs" id="2_hqtel"]
+[ext_resource type="Script" uid="uid://bf1fylrg5lp5k" path="res://PlayerHUD.cs" id="3_sweqy"]
+[ext_resource type="Script" uid="uid://crr1d7pgdpyg2" path="res://HealthComponent.cs" id="4_2hs0m"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_fimxg"]
 
@@ -29,5 +32,31 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 [node name="Camera3D" type="Camera3D" parent="Head" unique_id=1479409878]
 fov = 90.7
 
+[node name="WeaponRay" type="RayCast3D" parent="Head/Camera3D" unique_id=1144434703]
+target_position = Vector3(0, 0, -100)
+script = ExtResource("2_hqtel")
+
+[node name="Muzzle" type="Marker3D" parent="Head/Camera3D" unique_id=1351292842]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.37444818, -1.272007, -0.3077973)
+
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=1404814018]
 replication_config = SubResource("SceneReplicationConfig_4flbx")
+
+[node name="HeadCheck" type="RayCast3D" parent="." unique_id=1382116487]
+target_position = Vector3(0, 2, 0)
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=1213129993]
+script = ExtResource("3_sweqy")
+
+[node name="Velocity" type="Label" parent="HUD" unique_id=1585305118]
+offset_right = 418.0
+offset_bottom = 122.0
+
+[node name="HPBar" type="ProgressBar" parent="HUD" unique_id=350689561]
+offset_left = -6.0
+offset_top = 541.0
+offset_right = 310.0
+offset_bottom = 657.0
+
+[node name="HealthComponent" type="Node" parent="." unique_id=1401377186]
+script = ExtResource("4_2hs0m")
