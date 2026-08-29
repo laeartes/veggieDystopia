@@ -13,12 +13,11 @@ public partial class Player : CharacterBody3D
 	[Export] public float MouseSensitivity = 0.003f;
 	
 	private Node3D _head;
-	priate Camera3D _camera;
+	private Camera3D _camera;
 	private float _cameraRotationX = 0f;
 	
 	public override void _Ready()
 	{
-		
 		_head = GetNode<Node3D>("Head");
 		_camera = GetNode<Camera3D>("Head/Camera3D");
 		
@@ -41,12 +40,12 @@ public partial class Player : CharacterBody3D
 			Input.MouseMode = Input.MouseModeEnum.Visible;
 		}
 	}
+
 	public override void _PhysicsProcess(double delta) //decoupled from frame render rate
 	{
 		float dt = (float)delta;
 		Vector3 vel = Velocity;
 
-		// Get Input Direction
 		Vector2 inputDir = Input.GetVector("ui_left", "ui_right", "ui_up", "ui_down"); //i should change that to input maps one day
 		Vector3 wishDir = (Transform.Basis * new Vector3(inputDir.X, 0, inputDir.Y)).Normalized();
 
@@ -89,5 +88,4 @@ public partial class Player : CharacterBody3D
 		accelSpeed = Mathf.Min(accelSpeed, addSpeed);
 		return currentVel + wishDir * accelSpeed;
 	}
-}
 }
