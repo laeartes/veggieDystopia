@@ -11,6 +11,7 @@ public partial class Player : CharacterBody3D
 	[Export] public float Gravity = 20.0f;
 	[Export] public float JumpForce = 7.0f;
 	[Export] public float MouseSensitivity = 0.003f;
+	[Export] public float Friction = 6.0f; 
 	
 	private Node3D _head;
 	private Camera3D _camera;
@@ -46,12 +47,14 @@ public partial class Player : CharacterBody3D
 		float dt = (float)delta;
 		Vector3 vel = Velocity;
 
-		Vector2 inputDir = Input.GetVector("ui_left", "ui_right", "ui_up", "ui_down"); //i should change that to input maps one day
+		Vector2 inputDir = Input.GetVector("move_left", "move_right", "move_forward", "move_back");
 		Vector3 wishDir = (Transform.Basis * new Vector3(inputDir.X, 0, inputDir.Y)).Normalized();
 
 		if (IsOnFloor())
 		{
+			vel = ApplyFriction(vel, dt);
 			vel = Accelerate(vel, wishDir, MaxSpeed, Accel, dt);
+
 			if (Input.IsActionJustPressed("jump")) 
 			{
 				vel.Y = JumpForce;
@@ -65,6 +68,24 @@ public partial class Player : CharacterBody3D
 
 		Velocity = vel;
 		MoveAndSlide();
+	}
+
+	private Vector3 ApplyFriction(Vector3 currentVel, float dt)
+	{
+		// preservwes vertical vel
+		Vector3 horizontalVel = new Vector3(currentVel.X, 0, currentVel.Z);
+		float speed = horizontalVel.Length();
+
+		if (speed < 0.1f)
+		{
+			return new Vector3(0, currentVel.Y, 0);
+		}
+
+		float drop = speed * Friction * dt;
+		float newSpeed = Mathf.Max(speed - drop, 0f);
+		horizontalVel *= (newSpeed / speed);
+
+		return new Vector3(horizontalVel.X, currentVel.Y, horizontalVel.Z);
 	}
 
 	private Vector3 Accelerate(Vector3 currentVel, Vector3 wishDir, float maxVelocity, float accel, float dt)

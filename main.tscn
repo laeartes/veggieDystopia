@@ -8,6 +8,21 @@
 
 [node name="Main" type="Node3D" unique_id=38264616]
 
+[node name="obstacle" type="CSGBox3D" parent="." unique_id=1057301647]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.3994946, 5.5691204, -0.04736328)
+use_collision = true
+size = Vector3(5, 10, 2)
+
+[node name="obstacle" type="CSGBox3D" parent="obstacle" unique_id=1443063693]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.228056, -0.31788254, -12.498432)
+use_collision = true
+size = Vector3(5, 10, 2)
+
+[node name="obstacle" type="CSGBox3D" parent="obstacle/obstacle" unique_id=1108980267]
+transform = Transform3D(1, 0, 0, 0, 0.19642773, 0.9805183, 0, -0.9805183, 0.19642773, 4.1628513, -0.41024065, 7.7919884)
+use_collision = true
+size = Vector3(5, 10, 2)
+
 [node name="Ground" type="CSGBox3D" parent="." unique_id=1464712144]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.8436055, -0.02368164)
 use_collision = true
@@ -26,3 +41,6 @@ mesh = SubResource("CapsuleMesh_fimxg")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 
 [node name="Camera3D" type="Camera3D" parent="Player/Head" unique_id=198371093]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=946937848]
+transform = Transform3D(-0.564481, -0.7814027, 0.26602852, 0.78023607, -0.39989892, 0.48094958, -0.26943082, 0.479052, 0.8354138, 0, 3.7049956, 0)
