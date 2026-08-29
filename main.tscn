@@ -1,46 +1,124 @@
 [gd_scene format=3 uid="uid://cccf0cjs83778"]
 
-[ext_resource type="Script" uid="uid://tlwik70twbjk" path="res://Player.cs" id="1_ig7tw"]
+[ext_resource type="Script" uid="uid://xyx0ppvx5t6q" path="res://NetworkManager.cs" id="1_ig7tw"]
+[ext_resource type="PackedScene" uid="uid://darfe6h0bpnge" path="res://player.tscn" id="2_0xm2m"]
 
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_fimxg"]
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_0xm2m"]
 
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_fimxg"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ig7tw"]
+albedo_color = Color(0.3782294, 0.17830607, 0.23435146, 1)
+metallic = 1.0
+metallic_texture = SubResource("PlaceholderTexture2D_0xm2m")
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_ig7tw"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0xm2m"]
+albedo_color = Color(0.2832534, 0.5331212, 0.52664804, 1)
+roughness = 0.1
+emission_enabled = true
+emission = Color(1, 0, 0, 1)
+emission_energy_multiplier = 0.06
+emission_texture = SubResource("PlaceholderTexture2D_ig7tw")
+rim_enabled = true
+clearcoat_enabled = true
+clearcoat = 0.35
+clearcoat_roughness = 0.8
+subsurf_scatter_enabled = true
+subsurf_scatter_strength = 0.13
+refraction_scale = -1.0
 
 [node name="Main" type="Node3D" unique_id=38264616]
-
-[node name="obstacle" type="CSGBox3D" parent="." unique_id=1057301647]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.3994946, 5.5691204, -0.04736328)
-use_collision = true
-size = Vector3(5, 10, 2)
-
-[node name="obstacle" type="CSGBox3D" parent="obstacle" unique_id=1443063693]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.228056, -0.31788254, -12.498432)
-use_collision = true
-size = Vector3(5, 10, 2)
-
-[node name="obstacle" type="CSGBox3D" parent="obstacle/obstacle" unique_id=1108980267]
-transform = Transform3D(1, 0, 0, 0, 0.19642773, 0.9805183, 0, -0.9805183, 0.19642773, 4.1628513, -0.41024065, 7.7919884)
-use_collision = true
-size = Vector3(5, 10, 2)
-
-[node name="Ground" type="CSGBox3D" parent="." unique_id=1464712144]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.8436055, -0.02368164)
-use_collision = true
-size = Vector3(50, 1, 50)
-
-[node name="Player" type="CharacterBody3D" parent="." unique_id=30881659]
 script = ExtResource("1_ig7tw")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Player" unique_id=1176650210]
-shape = SubResource("CapsuleShape3D_fimxg")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Player" unique_id=1658369503]
-mesh = SubResource("CapsuleMesh_fimxg")
-
-[node name="Head" type="Node3D" parent="Player" unique_id=1986996984]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
-
-[node name="Camera3D" type="Camera3D" parent="Player/Head" unique_id=198371093]
+PlayerScene = ExtResource("2_0xm2m")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=946937848]
 transform = Transform3D(-0.564481, -0.7814027, 0.26602852, 0.78023607, -0.39989892, 0.48094958, -0.26943082, 0.479052, 0.8354138, 0, 3.7049956, 0)
+
+[node name="Environment" type="Node3D" parent="." unique_id=1926236311]
+
+[node name="Ground" type="CSGBox3D" parent="Environment" unique_id=1464712144]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2, -0.024)
+use_collision = true
+size = Vector3(100, 1, 100)
+material = SubResource("StandardMaterial3D_ig7tw")
+
+[node name="Ramp" type="CSGPolygon3D" parent="Environment" unique_id=1870382322]
+transform = Transform3D(1.0718415, 0, 0, 0, 0.48812658, 0, 0, 0, 2.2526608, 0.68754435, -1.6355788, 4.196894)
+use_collision = true
+polygon = PackedVector2Array(0, 0, 10, 0, 0, 5)
+material = SubResource("StandardMaterial3D_0xm2m")
+
+[node name="Box2" type="CSGBox3D" parent="Environment" unique_id=257146056]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1.8450266, -10.319369, 2.4655528, 4.0604)
+use_collision = true
+size = Vector3(3.6220703, 0.5410156, 3.2529297)
+material = SubResource("StandardMaterial3D_0xm2m")
+
+[node name="Box" type="CSGBox3D" parent="Environment" unique_id=1168833912]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.4878356, 1.2790878, 3.002658)
+use_collision = true
+size = Vector3(3.6220703, 0.5410156, 2.9365234)
+material = SubResource("StandardMaterial3D_0xm2m")
+
+[node name="Box2" type="CSGBox3D" parent="Environment/Box" unique_id=1615241240]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.319369, 3.3326752, -4.5775146)
+use_collision = true
+size = Vector3(3.6220703, 0.5410156, 2.9365234)
+material = SubResource("StandardMaterial3D_0xm2m")
+
+[node name="Box" type="CSGBox3D" parent="Environment/Box" unique_id=1184694302]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.4878356, 2.14621, -5.6779394)
+use_collision = true
+size = Vector3(3.6220703, 0.5410156, 3.4349365)
+material = SubResource("StandardMaterial3D_0xm2m")
+
+[node name="cylinder" type="CSGCylinder3D" parent="Environment" unique_id=1213245910]
+transform = Transform3D(0.9001246, -0.43563253, 1.9042103e-08, 0, -4.371139e-08, -1, 0.43563253, 0.9001246, -3.9345696e-08, -14.986258, 1.7129187e-07, -3.5273194)
+operation = 2
+use_collision = true
+radius = 2.0
+height = 22.837402
+sides = 24
+material = SubResource("StandardMaterial3D_0xm2m")
+
+[node name="Box2" type="CSGBox3D" parent="Environment/cylinder" unique_id=240309117]
+transform = Transform3D(0.81892616, -0.37414324, -0.80290806, -0.3741433, 0.22692725, -1.6590068, 0.43517444, 0.8991778, 0.08460076, -11.898271, -0.7968466, -3.045958)
+use_collision = true
+size = Vector3(3.6220703, 0.5410156, 3.2529297)
+material = SubResource("StandardMaterial3D_0xm2m")
+
+[node name="Box" type="CSGBox3D" parent="Environment/cylinder" unique_id=1235316947]
+transform = Transform3D(0.8189263, -0.3741433, -0.43517435, -0.3741433, 0.22692725, -0.89917785, 0.4351744, 0.8991778, 0.045853447, -5.399539, -2.6709607, -1.1883932)
+use_collision = true
+size = Vector3(3.6220703, 0.5410156, 2.9365234)
+material = SubResource("StandardMaterial3D_0xm2m")
+
+[node name="Box2" type="CSGBox3D" parent="Environment/cylinder/Box" unique_id=465472957]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.319369, 3.3326752, -4.5775146)
+use_collision = true
+size = Vector3(3.6220703, 0.5410156, 2.9365234)
+material = SubResource("StandardMaterial3D_0xm2m")
+
+[node name="Box" type="CSGBox3D" parent="Environment/cylinder/Box" unique_id=1204593625]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.4878356, 2.14621, -5.6779394)
+use_collision = true
+size = Vector3(3.6220703, 0.5410156, 3.4349365)
+material = SubResource("StandardMaterial3D_0xm2m")
+
+[node name="cylinder" type="CSGCylinder3D" parent="Environment/cylinder" unique_id=623546609]
+transform = Transform3D(0.5475594, -0.7484619, 0.3741434, -0.7284867, -0.64638305, -0.22692733, 0.41168648, -0.14830239, -0.89917785, -11.495656, 7.212451, -7.64176)
+use_collision = true
+radius = 2.0
+height = 22.837402
+sides = 24
+material = SubResource("StandardMaterial3D_0xm2m")
+
+[node name="NetworkUI" type="Control" parent="." unique_id=329634105]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="." unique_id=1546286507]
+_spawnable_scenes = PackedStringArray("uid://darfe6h0bpnge")
+spawn_path = NodePath("..")

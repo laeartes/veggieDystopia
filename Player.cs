@@ -3,30 +3,84 @@ using System;
 
 public partial class Player : CharacterBody3D
 {
-	//kinda arbitrary values, may need to change
+	// csgo kinda params
 	[Export] public float MaxSpeed = 7.0f;
-	[Export] public float Accel = 10.0f;
-	[Export] public float AirAccel = 50.0f;
-	[Export] public float AirCap = 0.6f;
-	[Export] public float Gravity = 20.0f;
-	[Export] public float JumpForce = 7.0f;
+	[Export] public float CrouchSpeed = 3.5f;
+	[Export] public float Accel = 5.5f;
+	[Export] public float AirAccel = 12.0f;
+	[Export] public float AirCap = 0.8f;
+	[Export] public float Gravity = 18.0f;
+	[Export] public float JumpForce = 6.5f;
 	[Export] public float MouseSensitivity = 0.003f;
-	[Export] public float Friction = 6.0f; 
-	
+	[Export] public float Friction = 5.2f;
+
+	[Export] public float StandHeight = 2.0f;
+	[Export] public float CrouchHeight = 1.0f;
+	[Export] public float CrouchSpeedTransition = 12.0f;
+
+	[Export] public Color PlayerColor { get; set; } = Colors.White;
+
 	private Node3D _head;
 	private Camera3D _camera;
-	private float _cameraRotationX = 0f;
+	private CollisionShape3D _collider;
+	private MeshInstance3D _mesh;
 	
+	private float _cameraRotationX = 0f;
+	private float _currentShapeHeight;
+	private bool _isCrouching = false;
+
+	public override void _EnterTree()
+	{
+		// netowrk authority based on node spawn
+		if (int.TryParse(Name, out int peerId))
+		{
+			SetMultiplayerAuthority(peerId);
+		}
+	}
+
 	public override void _Ready()
 	{
 		_head = GetNode<Node3D>("Head");
 		_camera = GetNode<Camera3D>("Head/Camera3D");
+		_collider = GetNode<CollisionShape3D>("CollisionShape3D");
+		_mesh = GetNode<MeshInstance3D>("MeshInstance3D");
+		_currentShapeHeight = StandHeight;
 		
-		Input.MouseMode = Input.MouseModeEnum.Captured; //hide cursor and lock to the center
+		ApplyPlayerColor();
+		
+		// only local
+		if (IsMultiplayerAuthority())
+		{
+			_camera.MakeCurrent();
+			_mesh.Hide(); // Hide local capsule mesh
+			Input.MouseMode = Input.MouseModeEnum.Captured;
+		}
+		else
+		{
+			_mesh.Show(); 
+		}
 	}
-	
+
+	public void SetRandomColor()
+	{
+		PlayerColor = Color.FromHsv((float)GD.RandRange(0.0, 1.0), 0.8f, 0.9f);
+		ApplyPlayerColor();
+	}
+
+	private void ApplyPlayerColor()
+	{
+		if (_mesh == null) return;
+
+		StandardMaterial3D mat = new StandardMaterial3D();
+		mat.AlbedoColor = PlayerColor;
+		_mesh.MaterialOverride = mat;
+	}
+
 	public override void _UnhandledInput(InputEvent @event)
 	{
+		// only local
+		if (!IsMultiplayerAuthority()) return;
+
 		if (@event is InputEventMouseMotion mouseMotion && Input.MouseMode == Input.MouseModeEnum.Captured)
 		{
 			RotateY(-mouseMotion.Relative.X * MouseSensitivity);
@@ -36,24 +90,32 @@ public partial class Player : CharacterBody3D
 			_head.Rotation = new Vector3(_cameraRotationX, _head.Rotation.Y, _head.Rotation.Z);
 		}
 
-		if (@event.IsActionPressed("ui_cancel")) //escape to free mouse cursor
+		if (@event.IsActionPressed("ui_cancel"))
 		{
 			Input.MouseMode = Input.MouseModeEnum.Visible;
 		}
 	}
 
-	public override void _PhysicsProcess(double delta) //decoupled from frame render rate
+	public override void _PhysicsProcess(double delta)
 	{
+		// only local
+		if (!IsMultiplayerAuthority()) return;
+
 		float dt = (float)delta;
 		Vector3 vel = Velocity;
 
-		Vector2 inputDir = Input.GetVector("move_left", "move_right", "move_forward", "move_back");
+		_isCrouching = Input.IsActionPressed("crouch");
+		UpdateCrouchState(dt);
+
+		Vector2 inputDir = Input.GetVector("move_left", "move_right", "move_forward", "move_backward");
 		Vector3 wishDir = (Transform.Basis * new Vector3(inputDir.X, 0, inputDir.Y)).Normalized();
+
+		float targetMaxSpeed = _isCrouching ? CrouchSpeed : MaxSpeed;
 
 		if (IsOnFloor())
 		{
 			vel = ApplyFriction(vel, dt);
-			vel = Accelerate(vel, wishDir, MaxSpeed, Accel, dt);
+			vel = Accelerate(vel, wishDir, targetMaxSpeed, Accel, dt);
 
 			if (Input.IsActionJustPressed("jump")) 
 			{
@@ -70,16 +132,27 @@ public partial class Player : CharacterBody3D
 		MoveAndSlide();
 	}
 
+	private void UpdateCrouchState(float dt)
+	{
+		float targetHeight = _isCrouching ? CrouchHeight : StandHeight;
+		_currentShapeHeight = Mathf.Lerp(_currentShapeHeight, targetHeight, dt * CrouchSpeedTransition);
+
+		if (_collider.Shape is CapsuleShape3D capsule)
+		{
+			capsule.Height = _currentShapeHeight;
+		}
+
+		Vector3 headPos = _head.Position;
+		headPos.Y = _currentShapeHeight * 0.75f - 0.5f;
+		_head.Position = headPos;
+	}
+
 	private Vector3 ApplyFriction(Vector3 currentVel, float dt)
 	{
-		// preservwes vertical vel
 		Vector3 horizontalVel = new Vector3(currentVel.X, 0, currentVel.Z);
 		float speed = horizontalVel.Length();
 
-		if (speed < 0.1f)
-		{
-			return new Vector3(0, currentVel.Y, 0);
-		}
+		if (speed < 0.1f) return new Vector3(0, currentVel.Y, 0);
 
 		float drop = speed * Friction * dt;
 		float newSpeed = Mathf.Max(speed - drop, 0f);
