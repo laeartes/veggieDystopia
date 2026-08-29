@@ -1,0 +1,39 @@
+[gd_scene format=3 uid="uid://ddycug0x7hrts"]
+
+[ext_resource type="Script" uid="uid://d2kj5b7y37e1p" path="res://TargetDummy.cs" id="1_qoivk"]
+[ext_resource type="Script" uid="uid://crr1d7pgdpyg2" path="res://HealthComponent.cs" id="2_35rw3"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_fimxg"]
+
+[sub_resource type="Gradient" id="Gradient_jpnj8"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_r5yh1"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_obh1m"]
+noise = SubResource("FastNoiseLite_r5yh1")
+color_ramp = SubResource("Gradient_jpnj8")
+seamless = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_loteg"]
+albedo_color = Color(0.72156864, 0.44313726, 1, 1)
+metallic = 1.0
+metallic_specular = 0.31
+roughness = 0.2
+refraction_enabled = true
+refraction_scale = -1.0
+refraction_texture = SubResource("NoiseTexture2D_obh1m")
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_fimxg"]
+material = SubResource("StandardMaterial3D_loteg")
+
+[node name="TargetDummy" type="StaticBody3D" unique_id=2016940902]
+script = ExtResource("1_qoivk")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1350951833]
+shape = SubResource("CapsuleShape3D_fimxg")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=872714651]
+mesh = SubResource("CapsuleMesh_fimxg")
+
+[node name="HealthComponent" type="Node" parent="." unique_id=567410441]
+script = ExtResource("2_35rw3")
