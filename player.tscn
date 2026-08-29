@@ -4,7 +4,6 @@
 [ext_resource type="Script" uid="uid://bppjypnh8blxj" path="res://HitscanWeapon.cs" id="2_hqtel"]
 [ext_resource type="Script" uid="uid://bf1fylrg5lp5k" path="res://PlayerHUD.cs" id="3_sweqy"]
 [ext_resource type="Script" uid="uid://crr1d7pgdpyg2" path="res://HealthComponent.cs" id="4_2hs0m"]
-[ext_resource type="Script" uid="uid://8ilabrph0hmf" path="res://KillFeed.cs" id="4_sweqy"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_fimxg"]
 
@@ -62,7 +61,6 @@ offset_bottom = 657.0
 [node name="KillFeed" type="VBoxContainer" parent="HUD" unique_id=237134152]
 offset_right = 40.0
 offset_bottom = 40.0
-script = ExtResource("4_sweqy")
 
 [node name="HealthComponent" type="Node" parent="." unique_id=1401377186]
 script = ExtResource("4_2hs0m")
