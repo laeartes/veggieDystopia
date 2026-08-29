@@ -16,17 +16,16 @@ public partial class KillFeed : VBoxContainer
 	{
 		Label logLabel = new Label
 		{
-			Text = $"{attackerName} ➔ {victimName}",
+			Text = $"{attackerName} -> {victimName}",
 			HorizontalAlignment = HorizontalAlignment.Right
 		};
 
-		// Styling for dark background visibility
 		logLabel.AddThemeColorOverride("font_color", new Color(1f, 0.3f, 0.3f));
 		logLabel.AddThemeFontSizeOverride("font_size", 14);
 
 		AddChild(logLabel);
 
-		// Despawn log line after duration
+		// Despawn log line
 		GetTree().CreateTimer(MessageDuration).Timeout += () => logLabel.QueueFree();
 	}
 }

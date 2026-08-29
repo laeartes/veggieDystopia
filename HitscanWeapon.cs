@@ -44,6 +44,10 @@ public partial class HitscanWeapon : RayCast3D
 		if (IsColliding())
 		{
 			targetPoint = GetCollisionPoint();
+			Player ownerPlayer = GetNodeAncestor<Player>(this);
+			string attackerName = ownerPlayer != null ? $"Player {ownerPlayer.Name}" : "Player";
+
+			health.Rpc(nameof(HealthComponent.TakeDamage), Damage, attackerName);
 			GodotObject collider = GetCollider();
 			
 			if (collider is Node hitNode)
