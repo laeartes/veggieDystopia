@@ -131,7 +131,22 @@ public partial class Player : CharacterBody3D
 			_cameraRotationX = Mathf.Clamp(_cameraRotationX, Mathf.DegToRad(-89f), Mathf.DegToRad(89f));
 			_head.Rotation = new Vector3(_cameraRotationX, _head.Rotation.Y, _head.Rotation.Z);
 		}
+		
+		if (@event is InputEventMouseButton mouseBtn && mouseBtn.Pressed)
+		{
+			// Check if class menu is visible
+			ClassSelectUi menu = GetNodeOrNull<ClassSelectUi>("HUD/ClassSelectUI");
+			if (menu != null && menu.Visible) 
+			{
+				return; // Don't capture mouse back while picking a class
+			}
 
+			if (Input.MouseMode == Input.MouseModeEnum.Visible)
+			{
+				Input.MouseMode = Input.MouseModeEnum.Captured;
+			}
+		}
+		
 		if (@event.IsActionPressed("ui_cancel"))
 		{
 			Input.MouseMode = Input.MouseModeEnum.Visible;

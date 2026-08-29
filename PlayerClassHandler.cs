@@ -32,7 +32,13 @@ public partial class PlayerClassHandler : Node
 			health.SetMaxHealth(CurrentClass.MaxHealth, resetCurrent: true);
 		}
 
+		_player.MaxSpeed = CurrentClass.MaxSpeed;
+		_player.CrouchSpeed = CurrentClass.CrouchSpeed;
+		_player.JumpForce = CurrentClass.JumpForce;
+		_player.Accel = CurrentClass.Accel;
+
 		EquipWeapon(CurrentClass.PrimaryWeaponPrefab);
+		GD.Print($"Applied class: {newClass.ClassName} | New MaxSpeed: {_player.MaxSpeed}");
 	}
 
 	private void EquipWeapon(PackedScene weaponScene)

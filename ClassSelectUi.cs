@@ -12,19 +12,33 @@ public partial class ClassSelectUi : Control
 	{
 		SetAnchorsPreset(LayoutPreset.FullRect, keepOffsets: false);
 		
-		_classHandler = GetNodeAncestor<PlayerClassHandler>(this);
+		// Find Player root, then grab PlayerClassHandler
+		Player player = GetNodeAncestor<Player>(this);
+		if (player != null)
+		{
+			_classHandler = player.GetNodeOrNull<PlayerClassHandler>("PlayerClassHandler");
+		}
+
 		_buttonContainer = GetNodeOrNull<VBoxContainer>("VBoxContainer");
+
+		if (_classHandler == null)
+			GD.PrintErr("[ClassSelectUi] ERR: PlayerClassHandler not found on Player!");
+		if (_buttonContainer == null)
+			GD.PrintErr("[ClassSelectUi] ERR: VBoxContainer missing from UI tree!");
 
 		GenerateClassButtons();
 		Visible = false;
 	}
 
-	public override void _UnhandledInput(InputEvent @event)
+	public override void _Input(InputEvent @event)
 	{
-		// Toggle class select UI with 'M' key or ESC
-		if (@event.IsActionPressed("ui_cancel") || (@event is InputEventKey keyEvent && keyEvent.Pressed && keyEvent.Keycode == Key.M))
+		if (@event is InputEventKey keyEvent && keyEvent.Pressed && !keyEvent.Echo)
 		{
-			ToggleMenu(!Visible);
+			if (keyEvent.Keycode == Key.M)
+			{
+				ToggleMenu(!Visible);
+				GetViewport().SetInputAsHandled();
+			}
 		}
 	}
 
@@ -32,6 +46,7 @@ public partial class ClassSelectUi : Control
 	{
 		Visible = show;
 		Input.MouseMode = show ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Captured;
+		GD.Print($"[ClassSelectUi] Menu toggled. Visible: {Visible}");
 	}
 
 	private void GenerateClassButtons()
@@ -45,16 +60,33 @@ public partial class ClassSelectUi : Control
 
 		foreach (var classResource in AvailableClasses)
 		{
-			Button btn = new Button { Text = classResource.ClassName };
+			if (classResource == null) continue;
+
+			Button btn = new Button 
+			{ 
+				Text = classResource.ClassName,
+				CustomMinimumSize = new Vector2(200, 50)
+			};
+			
 			PlayerClassResource res = classResource;
-			btn.Pressed += () => SelectClass(res);
+			btn.Pressed += () => OnButtonPressed(res);
 			_buttonContainer.AddChild(btn);
 		}
 	}
 
-	private void SelectClass(PlayerClassResource selectedClass)
+	private void OnButtonPressed(PlayerClassResource selectedClass)
 	{
-		_classHandler?.ApplyClass(selectedClass);
+		GD.Print($"[ClassSelectUi] Button pressed: {selectedClass.ClassName}");
+		
+		if (_classHandler != null)
+		{
+			_classHandler.ApplyClass(selectedClass);
+		}
+		else
+		{
+			GD.PrintErr("[ClassSelectUi] Cannot apply class: _classHandler is null!");
+		}
+
 		ToggleMenu(false);
 	}
 

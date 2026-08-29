@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="PlayerClassResource" format=3 uid="uid://cy5m8w3yuul31"]
+
+[ext_resource type="PackedScene" uid="uid://diwkoyanugu72" path="res://SMG.tscn" id="1_lcvxe"]
+[ext_resource type="Script" uid="uid://ba3y6fn0drudn" path="res://PlayerClassResource.cs" id="2_1tq6w"]
+
+[resource]
+script = ExtResource("2_1tq6w")
+ClassName = "Scout"
+MaxHealth = 75.0
+MaxSpeed = 10.0
+Accel = 7.0
+PrimaryWeaponPrefab = ExtResource("1_lcvxe")
+SkillTreeRoots = null
+metadata/_custom_type_script = "uid://ba3y6fn0drudn"

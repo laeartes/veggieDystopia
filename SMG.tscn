@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://diwkoyanugu72"]
+
+[ext_resource type="Script" uid="uid://bppjypnh8blxj" path="res://HitscanWeapon.cs" id="1_c0pgd"]
+
+[node name="WeaponRay" type="RayCast3D" unique_id=1150790789]
+target_position = Vector3(0, 0, -100)
+script = ExtResource("1_c0pgd")
+Damage = 5.0
+FireRate = 0.1
+RecoilUp = 0.1
+RecoilRecoverySpeed = 5.0
+BaseSpread = 0.002
+MoveSpread = 0.05
+
+[node name="Muzzle" type="Marker3D" parent="." unique_id=1696624344]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, -0.25, -0.5)

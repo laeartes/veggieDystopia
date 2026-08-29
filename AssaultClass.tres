@@ -6,4 +6,5 @@
 [resource]
 script = ExtResource("1_7ra3l")
 PrimaryWeaponPrefab = ExtResource("1_twwju")
+SkillTreeRoots = null
 metadata/_custom_type_script = "uid://ba3y6fn0drudn"
