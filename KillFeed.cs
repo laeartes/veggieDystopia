@@ -7,16 +7,22 @@ public partial class KillFeed : VBoxContainer
 
 	public static KillFeed Instance { get; private set; }
 
-	public override void _EnterTree()
+	public override void _Ready()
 	{
-		Instance = this;
+		Player player = GetNodeAncestor<Player>(this);
+		
+		// Only assign Instance if this HUD belongs to the local player
+		if (player != null && player.IsMultiplayerAuthority())
+		{
+			Instance = this;
+		}
 	}
 
 	public void AddLog(string attackerName, string victimName)
 	{
 		Label logLabel = new Label
 		{
-			Text = $"{attackerName} -> {victimName}",
+			Text = $"{attackerName} ➔ {victimName}",
 			HorizontalAlignment = HorizontalAlignment.Right
 		};
 
@@ -25,7 +31,17 @@ public partial class KillFeed : VBoxContainer
 
 		AddChild(logLabel);
 
-		// Despawn log line
 		GetTree().CreateTimer(MessageDuration).Timeout += () => logLabel.QueueFree();
+	}
+
+	private T GetNodeAncestor<T>(Node startNode) where T : Node
+	{
+		Node current = startNode.GetParent();
+		while (current != null)
+		{
+			if (current is T ancestor) return ancestor;
+			current = current.GetParent();
+		}
+		return null;
 	}
 }

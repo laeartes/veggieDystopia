@@ -11,14 +11,6 @@ public partial class HealthComponent : Node
 
 	private string _lastAttackerName = "Environment";
 
-	public override void _EnterTree()
-	{
-		if (GetParent() is Node parent && int.TryParse(parent.Name, out int peerId))
-		{
-			SetMultiplayerAuthority(peerId);
-		}
-	}
-
 	public override void _Ready()
 	{
 		CurrentHealth = MaxHealth;
@@ -27,7 +19,7 @@ public partial class HealthComponent : Node
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void TakeDamage(float amount, string attackerName = "Unknown")
 	{
-		if (!IsMultiplayerAuthority() && !Multiplayer.IsServer()) return;
+		if (!Multiplayer.IsServer()) return;
 
 		_lastAttackerName = attackerName;
 		CurrentHealth = Mathf.Clamp(CurrentHealth - amount, 0f, MaxHealth);
@@ -37,6 +29,8 @@ public partial class HealthComponent : Node
 		if (CurrentHealth <= 0f)
 		{
 			string victimName = GetParent().Name;
+			
+			// Server broadcasts kill log to all clients (including host)
 			Rpc(nameof(BroadcastKill), _lastAttackerName, victimName);
 			Rpc(nameof(HandleDeath));
 		}
