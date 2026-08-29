@@ -53,11 +53,6 @@ public partial class HealthComponent : Node
 		{
 			CurrentHealth = MaxHealth;
 			Rpc(nameof(SyncHealth), CurrentHealth);
-			
-			if (GetParent() is Node3D parent3D)
-			{
-				parent3D.GlobalPosition = new Vector3(0, 5, 0);
-			}
 		}
 	}
 }

@@ -13,7 +13,7 @@ public partial class Player : CharacterBody3D
 	[Export] public float JumpForce = 6.5f;
 	[Export] public float MouseSensitivity = 0.003f;
 	[Export] public float Friction = 5.2f;
-	[Export] public float StopSpeed = 1.5f; // Velocity floor for linear friction drop
+	[Export] public float StopSpeed = 1.5f; 
 
 	[Export] public float StandHeight = 2.0f;
 	[Export] public float CrouchHeight = 1.0f;
@@ -32,7 +32,6 @@ public partial class Player : CharacterBody3D
 	private float _currentShapeHeight;
 	private bool _isCrouching = false;
 
-	// Jump buffering for scrollwheel + spacebar responsiveness
 	private float _jumpBufferTimer = 0f;
 	private const float JUMP_BUFFER_TIME = 0.1f;
 
@@ -59,7 +58,14 @@ public partial class Player : CharacterBody3D
 		_collider.Shape = _capsuleShape;
 		
 		ApplyPlayerColor();
-		
+
+		// Subscribe to HealthComponent death signal for random spawn positioning
+		HealthComponent health = GetNodeOrNull<HealthComponent>("HealthComponent");
+		if (health != null)
+		{
+			health.Died += RespawnAtRandomPoint;
+		}
+
 		// only local
 		if (IsMultiplayerAuthority())
 		{
@@ -71,6 +77,30 @@ public partial class Player : CharacterBody3D
 		{
 			_mesh.Show(); 
 		}
+	}
+
+	private void RespawnAtRandomPoint()
+	{
+		if (!IsMultiplayerAuthority()) return;
+
+		Node spawnContainer = GetTree().Root.FindChild("SpawnPoints", recursive: true, owned: false);
+
+		if (spawnContainer != null && spawnContainer.GetChildCount() > 0)
+		{
+			var children = spawnContainer.GetChildren();
+			int randomIndex = (int)(GD.Randi() % children.Count);
+			
+			if (children[randomIndex] is Node3D spawnMarker)
+			{
+				GlobalPosition = spawnMarker.GlobalPosition;
+				Velocity = Vector3.Zero;
+				return;
+			}
+		}
+
+		// Fallback
+		GlobalPosition = new Vector3(0, 5, 0);
+		Velocity = Vector3.Zero;
 	}
 
 	public void SetRandomColor()
@@ -106,7 +136,13 @@ public partial class Player : CharacterBody3D
 		{
 			Input.MouseMode = Input.MouseModeEnum.Visible;
 		}
-
+		if (@event is InputEventMouseButton mouseButton && mouseButton.Pressed)
+		{
+			if (Input.MouseMode == Input.MouseModeEnum.Visible)
+			{
+				Input.MouseMode = Input.MouseModeEnum.Captured;
+			}
+		}
 		// Buffer jump input on wheel scroll or keypress
 		if (@event.IsActionPressed("jump"))
 		{
@@ -122,7 +158,6 @@ public partial class Player : CharacterBody3D
 		float dt = (float)delta;
 		Vector3 vel = Velocity;
 
-		// Tick down jump buffer
 		if (_jumpBufferTimer > 0f)
 		{
 			_jumpBufferTimer -= dt;
@@ -188,7 +223,6 @@ public partial class Player : CharacterBody3D
 
 		if (speed < 0.001f) return new Vector3(0, currentVel.Y, 0);
 
-		// Source engine uses a minimum speed threshold (StopSpeed) for friction calculations
 		float control = speed < StopSpeed ? StopSpeed : speed;
 		float drop = control * Friction * dt;
 
@@ -211,7 +245,6 @@ public partial class Player : CharacterBody3D
 
 	private Vector3 AirAccelerate(Vector3 currentVel, Vector3 wishDir, float wishSpeed, float airCap, float accel, float dt)
 	{
-		// Air cap restricts max speed gain along wishDir, allowing side-strafing speed buildup
 		float capSpeed = Mathf.Min(wishSpeed, airCap);
 		float currentSpeed = currentVel.Dot(wishDir);
 		float addSpeed = capSpeed - currentSpeed;
