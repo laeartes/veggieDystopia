@@ -1,11 +1,13 @@
 [gd_scene format=3 uid="uid://darfe6h0bpnge"]
 
 [ext_resource type="Script" uid="uid://tlwik70twbjk" path="res://Player.cs" id="1_4flbx"]
-[ext_resource type="Script" uid="uid://bppjypnh8blxj" path="res://HitscanWeapon.cs" id="2_hqtel"]
 [ext_resource type="Script" uid="uid://bf1fylrg5lp5k" path="res://PlayerHUD.cs" id="3_sweqy"]
 [ext_resource type="Script" uid="uid://crr1d7pgdpyg2" path="res://HealthComponent.cs" id="4_2hs0m"]
 [ext_resource type="Script" uid="uid://8ilabrph0hmf" path="res://KillFeed.cs" id="4_sweqy"]
 [ext_resource type="Script" uid="uid://dvvsfi1xyi0oh" path="res://Crosshair.cs" id="5_2hs0m"]
+[ext_resource type="Script" uid="uid://bv1yltjxie77c" path="res://ClassSelectUi.cs" id="5_dw050"]
+[ext_resource type="Script" uid="uid://vc3256ljrb3r" path="res://PlayerClassHandler.cs" id="6_2hs0m"]
+[ext_resource type="Resource" uid="uid://fhxrkpudwo3o" path="res://AssaultClass.tres" id="8_b26j0"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_fimxg"]
 
@@ -34,13 +36,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 [node name="Camera3D" type="Camera3D" parent="Head" unique_id=1479409878]
 fov = 70.0
 
-[node name="WeaponRay" type="RayCast3D" parent="Head/Camera3D" unique_id=1144434703]
-target_position = Vector3(0, 0, -100)
-script = ExtResource("2_hqtel")
-RecoilUp = 0.2
-RecoilRecoverySpeed = 15.0
+[node name="WeaponHolder" type="Node3D" parent="Head/Camera3D" unique_id=1093122760]
 
-[node name="Muzzle" type="Marker3D" parent="Head/Camera3D" unique_id=1351292842]
+[node name="Muzzle" type="Marker3D" parent="Head/Camera3D/WeaponHolder" unique_id=1351292842]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.37444818, -1.272007, -0.3077973)
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=1404814018]
@@ -88,5 +86,17 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("5_2hs0m")
 
+[node name="ClassSelectUI" type="Control" parent="HUD" unique_id=711231253]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1152.0
+offset_bottom = 647.0
+script = ExtResource("5_dw050")
+AvailableClasses = Array[Object]([ExtResource("8_b26j0")])
+
 [node name="HealthComponent" type="Node" parent="." unique_id=1401377186]
 script = ExtResource("4_2hs0m")
+
+[node name="PlayerClassHandler" type="Node" parent="." unique_id=1272328455]
+script = ExtResource("6_2hs0m")
+DefaultClass = ExtResource("8_b26j0")

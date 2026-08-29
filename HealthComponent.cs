@@ -15,7 +15,14 @@ public partial class HealthComponent : Node
 	{
 		CurrentHealth = MaxHealth;
 	}
-
+	public void SetMaxHealth(float newMaxHealth, bool resetCurrent = true)
+	{
+		MaxHealth = newMaxHealth;
+		if (resetCurrent)
+		{
+			CurrentHealth = newMaxHealth;
+		}
+	}
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void TakeDamage(float amount, string attackerName = "Unknown")
 	{

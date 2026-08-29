@@ -26,11 +26,11 @@ public partial class HitscanWeapon : RayCast3D
 
 	public override void _Ready()
 	{
-		_muzzle = GetNodeOrNull<Marker3D>("../Muzzle");
+		_muzzle = GetNodeOrNull<Marker3D>("Muzzle") ?? GetNodeOrNull<Marker3D>("../Muzzle");
 		_ownerPlayer = GetNodeAncestor<Player>(this);
 		_camera = _ownerPlayer?.GetNodeOrNull<Camera3D>("Head/Camera3D");
 
-		if (_ownerPlayer != null)
+		if (IsInstanceValid(_ownerPlayer))
 		{
 			AddException(_ownerPlayer);
 		}
@@ -38,21 +38,19 @@ public partial class HitscanWeapon : RayCast3D
 
 	public override void _Process(double delta)
 	{
-		if (_ownerPlayer != null && !_ownerPlayer.IsMultiplayerAuthority()) return;
+		if (IsInstanceValid(_ownerPlayer) && !_ownerPlayer.IsMultiplayerAuthority()) return;
 
 		float dt = (float)delta;
 
-		// Calculate current spread state
 		CurrentSpread = CalculateCurrentSpread();
 
-		// Recoil pitch recovery
 		_targetRecoilPitch = Mathf.Lerp(_targetRecoilPitch, 0f, dt * RecoilRecoverySpeed);
 		
 		float newPitch = Mathf.Lerp(_currentRecoilPitch, _targetRecoilPitch, dt * 25f);
 		float pitchDelta = newPitch - _currentRecoilPitch;
 		_currentRecoilPitch = newPitch;
 
-		if (_camera != null && !Mathf.IsZeroApprox(pitchDelta))
+		if (IsInstanceValid(_camera) && !Mathf.IsZeroApprox(pitchDelta))
 		{
 			_camera.RotateObjectLocal(Vector3.Right, pitchDelta);
 		}
@@ -63,11 +61,10 @@ public partial class HitscanWeapon : RayCast3D
 		}
 	}
 
-	private float CalculateCurrentSpread()
+	protected virtual float CalculateCurrentSpread()
 	{
-		if (_ownerPlayer == null) return BaseSpread;
+		if (!IsInstanceValid(_ownerPlayer)) return BaseSpread;
 
-		// Air check always adds penalty
 		if (!_ownerPlayer.IsOnFloor()) 
 		{
 			return BaseSpread + MoveSpread * 1.5f;
@@ -76,24 +73,22 @@ public partial class HitscanWeapon : RayCast3D
 		Vector2 inputDir = Input.GetVector("move_left", "move_right", "move_forward", "move_backward");
 		float speed = new Vector3(_ownerPlayer.Velocity.X, 0, _ownerPlayer.Velocity.Z).Length();
 
-		// Counter-strafe check: If input is neutral/canceling or speed drops below threshold (1.0 m/s), collapse to BaseSpread
 		if (inputDir == Vector2.Zero || speed < 1.0f)
 		{
 			return BaseSpread;
 		}
 
-		// Active movement spread
 		return BaseSpread + (speed / 7.0f) * MoveSpread;
 	}
 
-	private void TryShoot()
+	protected virtual void TryShoot()
 	{
 		float currentTime = Time.GetTicksMsec() / 1000f;
 		if (currentTime < _nextFireTime) return;
 
 		_nextFireTime = currentTime + FireRate;
 
-		if (_camera == null) return;
+		if (!IsInstanceValid(_camera)) return;
 
 		float randX = (float)GD.RandRange(-CurrentSpread, CurrentSpread);
 		float randY = (float)GD.RandRange(-CurrentSpread, CurrentSpread);
@@ -115,7 +110,10 @@ public partial class HitscanWeapon : RayCast3D
 		);
 		
 		query.CollisionMask = CollisionMask;
-		query.Exclude = new Godot.Collections.Array<Rid> { _ownerPlayer.GetRid() };
+		if (IsInstanceValid(_ownerPlayer))
+		{
+			query.Exclude = new Godot.Collections.Array<Rid> { _ownerPlayer.GetRid() };
+		}
 		query.CollideWithBodies = true;
 		query.CollideWithAreas = true;
 
@@ -142,9 +140,12 @@ public partial class HitscanWeapon : RayCast3D
 		}
 
 		_targetRecoilPitch += RecoilUp;
-		_ownerPlayer.RotateY((float)GD.RandRange(-RecoilSide, RecoilSide));
+		if (IsInstanceValid(_ownerPlayer))
+		{
+			_ownerPlayer.RotateY((float)GD.RandRange(-RecoilSide, RecoilSide));
+		}
 
-		Vector3 muzzlePos = _muzzle != null ? _muzzle.GlobalPosition : GlobalPosition;
+		Vector3 muzzlePos = IsInstanceValid(_muzzle) ? _muzzle.GlobalPosition : GlobalPosition;
 		Rpc(nameof(ShowTracer), muzzlePos, targetPoint);
 	}
 

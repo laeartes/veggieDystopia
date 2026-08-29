@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="PlayerClassResource" format=3 uid="uid://fhxrkpudwo3o"]
+
+[ext_resource type="Script" uid="uid://ba3y6fn0drudn" path="res://PlayerClassResource.cs" id="1_7ra3l"]
+[ext_resource type="PackedScene" uid="uid://c0fm0m5dkhqdf" path="res://AssaultRifle.tscn" id="1_twwju"]
+
+[resource]
+script = ExtResource("1_7ra3l")
+PrimaryWeaponPrefab = ExtResource("1_twwju")
+metadata/_custom_type_script = "uid://ba3y6fn0drudn"
