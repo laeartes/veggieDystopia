@@ -15,7 +15,7 @@ public partial class HitscanWeapon : RayCast3D
 	[ExportGroup("Spread Settings")]
 	[Export] public float BaseSpread = 0.008f;
 	[Export] public float MoveSpread = 0.04f;
-	[Export] public uint CollisionMask = 1;
+	[Export] public new uint CollisionMask = 1;
 
 	[ExportGroup("Zoom / Scope Settings")]
 	[Export] public bool EnableZoom = true;

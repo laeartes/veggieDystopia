@@ -7,12 +7,12 @@ public partial class Player : CharacterBody3D
 	[Export] public float MaxSpeed = 7.0f;
 	[Export] public float CrouchSpeed = 3.5f;
 	[Export] public float Accel = 5.5f;
-	[Export] public float AirAccel = 12.0f;
-	[Export] public float AirCap = 0.8f;
+	[Export] public float AirAccel = 100.0f;
+	[Export] public float AirCap = 1.2f;
 	[Export] public float Gravity = 18.0f;
 	[Export] public float JumpForce = 6.5f;
 	[Export] public float MouseSensitivity = 0.003f;
-	[Export] public float Friction = 5.2f;
+	[Export] public float Friction = 4f;
 	[Export] public float StopSpeed = 1.5f; 
 
 	[Export] public float StandHeight = 2.0f;

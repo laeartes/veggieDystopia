@@ -36,7 +36,11 @@ public partial class PlayerClassHandler : Node
 		_player.CrouchSpeed = CurrentClass.CrouchSpeed;
 		_player.JumpForce = CurrentClass.JumpForce;
 		_player.Accel = CurrentClass.Accel;
-
+		PlayerAbilityHandler abilityHandler = _player.GetNodeOrNull<PlayerAbilityHandler>("PlayerAbilityHandler");
+		if (abilityHandler != null && newClass != null)
+		{
+			abilityHandler.SetupAbilities(newClass.TacticalAbility, newClass.UltimateAbility);
+		}
 		EquipWeapon(CurrentClass.PrimaryWeaponPrefab);
 		GD.Print($"Applied class: {newClass.ClassName} | New MaxSpeed: {_player.MaxSpeed}");
 	}

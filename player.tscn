@@ -9,6 +9,8 @@
 [ext_resource type="Script" uid="uid://vc3256ljrb3r" path="res://PlayerClassHandler.cs" id="6_2hs0m"]
 [ext_resource type="Resource" uid="uid://cy5m8w3yuul31" path="res://ScoutClass.tres" id="7_b26j0"]
 [ext_resource type="Resource" uid="uid://fhxrkpudwo3o" path="res://AssaultClass.tres" id="8_b26j0"]
+[ext_resource type="Script" uid="uid://1nv1wyote387" path="res://AbilitySlotUI.cs" id="8_nvl01"]
+[ext_resource type="Script" uid="uid://catpoqbg2avl3" path="res://PlayerAbilityHandler.cs" id="10_n7ghd"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_fimxg"]
 
@@ -21,6 +23,8 @@ properties/0/replication_mode = 1
 properties/1/path = NodePath(".:rotation")
 properties/1/spawn = true
 properties/1/replication_mode = 1
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_nvl01"]
 
 [node name="Player" type="CharacterBody3D" unique_id=615997359]
 script = ExtResource("1_4flbx")
@@ -48,8 +52,10 @@ replication_config = SubResource("SceneReplicationConfig_4flbx")
 [node name="HeadCheck" type="RayCast3D" parent="." unique_id=1382116487]
 target_position = Vector3(0, 2, 0)
 
-[node name="HUD" type="CanvasLayer" parent="." unique_id=1213129993]
+[node name="HUD" type="CanvasLayer" parent="." unique_id=1213129993 node_paths=PackedStringArray("_tacticalSlot", "_ultimateSlot")]
 script = ExtResource("3_sweqy")
+_tacticalSlot = NodePath("Abilities/Tactical")
+_ultimateSlot = NodePath("Abilities/Ultimate")
 
 [node name="Velocity" type="Label" parent="HUD" unique_id=1585305118]
 offset_right = 418.0
@@ -110,9 +116,134 @@ grow_horizontal = 2
 grow_vertical = 2
 alignment = 1
 
+[node name="Abilities" type="HBoxContainer" parent="HUD" unique_id=1783822780]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -72.0
+offset_top = -75.0
+offset_right = 165.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Tactical" type="Control" parent="HUD/Abilities" unique_id=1262064743 node_paths=PackedStringArray("_iconRect", "_cooldownProgress", "_cooldownLabel", "_keyLabel")]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+script = ExtResource("8_nvl01")
+_iconRect = NodePath("TextureRect")
+_cooldownProgress = NodePath("TextureProgressBar")
+_cooldownLabel = NodePath("Label")
+_keyLabel = NodePath("KeyLabel")
+
+[node name="TextureRect" type="TextureRect" parent="HUD/Abilities/Tactical" unique_id=810523898]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="TextureProgressBar" type="TextureProgressBar" parent="HUD/Abilities/Tactical" unique_id=1362905005]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+fill_mode = 4
+texture_progress = SubResource("PlaceholderTexture2D_nvl01")
+
+[node name="Label" type="Label" parent="HUD/Abilities/Tactical" unique_id=342609422]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -11.5
+offset_right = 20.0
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "E"
+horizontal_alignment = 1
+
+[node name="KeyLabel" type="Label" parent="HUD/Abilities/Tactical" unique_id=1842593443]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -20.0
+offset_top = -23.0
+offset_right = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+horizontal_alignment = 1
+
+[node name="Ultimate" type="Control" parent="HUD/Abilities" unique_id=157618673 node_paths=PackedStringArray("_iconRect", "_cooldownProgress", "_cooldownLabel", "_keyLabel")]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+script = ExtResource("8_nvl01")
+_iconRect = NodePath("TextureRect")
+_cooldownProgress = NodePath("TextureProgressBar")
+_cooldownLabel = NodePath("Label")
+_keyLabel = NodePath("KeyLabel")
+
+[node name="TextureRect" type="TextureRect" parent="HUD/Abilities/Ultimate" unique_id=209052303]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="TextureProgressBar" type="TextureProgressBar" parent="HUD/Abilities/Ultimate" unique_id=9757771]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+fill_mode = 4
+texture_progress = SubResource("PlaceholderTexture2D_nvl01")
+
+[node name="Label" type="Label" parent="HUD/Abilities/Ultimate" unique_id=1672361971]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -11.5
+offset_right = 20.0
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "Q"
+horizontal_alignment = 1
+
+[node name="KeyLabel" type="Label" parent="HUD/Abilities/Ultimate" unique_id=1649619476]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -20.0
+offset_top = -23.0
+offset_right = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+horizontal_alignment = 1
+
 [node name="HealthComponent" type="Node" parent="." unique_id=1401377186]
 script = ExtResource("4_2hs0m")
 
 [node name="PlayerClassHandler" type="Node" parent="." unique_id=1272328455]
 script = ExtResource("6_2hs0m")
 DefaultClass = ExtResource("8_b26j0")
+
+[node name="PlayerAbilityHandler" type="Node" parent="." unique_id=1039822109]
+script = ExtResource("10_n7ghd")

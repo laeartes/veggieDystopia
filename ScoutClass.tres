@@ -2,6 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://diwkoyanugu72" path="res://SMG.tscn" id="1_lcvxe"]
 [ext_resource type="Script" uid="uid://ba3y6fn0drudn" path="res://PlayerClassResource.cs" id="2_1tq6w"]
+[ext_resource type="Resource" uid="uid://1iaeo3ndse4d" path="res://Dash.tres" id="2_7p3j5"]
 
 [resource]
 script = ExtResource("2_1tq6w")
@@ -10,5 +11,6 @@ MaxHealth = 75.0
 MaxSpeed = 10.0
 Accel = 7.0
 PrimaryWeaponPrefab = ExtResource("1_lcvxe")
-SkillTreeRoots = null
+TacticalAbility = ExtResource("2_7p3j5")
+SkillTreeRoots = Array[Object]([])
 metadata/_custom_type_script = "uid://ba3y6fn0drudn"
