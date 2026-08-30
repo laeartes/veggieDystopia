@@ -11,6 +11,10 @@ RecoilUp = 0.1
 RecoilRecoverySpeed = 5.0
 BaseSpread = 0.002
 MoveSpread = 0.05
+ZoomFov = 60.0
+ZoomSpeed = 5.0
+ZoomedSpreadMultiplier = 0.05
+ZoomedMoveSpeedMultiplier = 0.8
 
 [node name="Muzzle" type="Marker3D" parent="." unique_id=1696624344]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, -0.25, -0.5)

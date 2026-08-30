@@ -3,16 +3,28 @@ using System;
 
 public partial class HitscanWeapon : RayCast3D
 {
+	[ExportGroup("Base Weapon Stats")]
 	[Export] public float Damage = 25f;
 	[Export] public float FireRate = 0.15f;
 
+	[ExportGroup("Recoil Settings")]
 	[Export] public float RecoilUp = 0.03f;
 	[Export] public float RecoilSide = 0.01f;
 	[Export] public float RecoilRecoverySpeed = 14f;
 
+	[ExportGroup("Spread Settings")]
 	[Export] public float BaseSpread = 0.008f;
 	[Export] public float MoveSpread = 0.04f;
 	[Export] public uint CollisionMask = 1;
+
+	[ExportGroup("Zoom / Scope Settings")]
+	[Export] public bool EnableZoom = true;
+	[Export] public float ZoomFov = 40.0f;
+	[Export] public float ZoomSpeed = 12.0f;
+	[Export] public bool HasScopeOverlay = false;
+	[Export] public Texture2D ScopeTexture;
+	[Export] public float ZoomedSpreadMultiplier = 0.2f;
+	[Export] public float ZoomedMoveSpeedMultiplier = 0.6f;
 
 	public float CurrentSpread { get; private set; } = 0.008f;
 
@@ -24,6 +36,13 @@ public partial class HitscanWeapon : RayCast3D
 	private float _targetRecoilPitch = 0f;
 	private float _currentRecoilPitch = 0f;
 
+	private float _defaultFov = 75.0f;
+	private float _targetFov = 75.0f;
+	private bool _isZoomed = false;
+	private CanvasLayer _scopeCanvas;
+	private TextureRect _scopeRect;
+	private float _basePlayerMaxSpeed = 7.0f;
+
 	public override void _Ready()
 	{
 		_muzzle = GetNodeOrNull<Marker3D>("Muzzle") ?? GetNodeOrNull<Marker3D>("../Muzzle");
@@ -33,7 +52,16 @@ public partial class HitscanWeapon : RayCast3D
 		if (IsInstanceValid(_ownerPlayer))
 		{
 			AddException(_ownerPlayer);
+			_basePlayerMaxSpeed = _ownerPlayer.MaxSpeed;
 		}
+
+		if (IsInstanceValid(_camera))
+		{
+			_defaultFov = _camera.Fov;
+			_targetFov = _defaultFov;
+		}
+
+		SetupScopeOverlay();
 	}
 
 	public override void _Process(double delta)
@@ -41,6 +69,23 @@ public partial class HitscanWeapon : RayCast3D
 		if (IsInstanceValid(_ownerPlayer) && !_ownerPlayer.IsMultiplayerAuthority()) return;
 
 		float dt = (float)delta;
+
+		if (EnableZoom)
+		{
+			if (Input.IsActionJustPressed("fire2"))
+			{
+				SetZoomState(true);
+			}
+			else if (Input.IsActionJustReleased("fire2"))
+			{
+				SetZoomState(false);
+			}
+		}
+
+		if (IsInstanceValid(_camera) && !Mathf.IsEqualApprox(_camera.Fov, _targetFov, 0.05f))
+		{
+			_camera.Fov = Mathf.Lerp(_camera.Fov, _targetFov, dt * ZoomSpeed);
+		}
 
 		CurrentSpread = CalculateCurrentSpread();
 
@@ -61,24 +106,56 @@ public partial class HitscanWeapon : RayCast3D
 		}
 	}
 
+	public void SetZoomState(bool zoomed)
+	{
+		_isZoomed = zoomed;
+		_targetFov = _isZoomed ? ZoomFov : _defaultFov;
+
+		if (HasScopeOverlay && _scopeCanvas != null)
+		{
+			_scopeCanvas.Visible = _isZoomed;
+		}
+
+		if (IsInstanceValid(_ownerPlayer))
+		{
+			if (_isZoomed)
+			{
+				_basePlayerMaxSpeed = _ownerPlayer.MaxSpeed;
+				_ownerPlayer.MaxSpeed *= ZoomedMoveSpeedMultiplier;
+			}
+			else
+			{
+				_ownerPlayer.MaxSpeed = _basePlayerMaxSpeed;
+			}
+		}
+	}
+
 	protected virtual float CalculateCurrentSpread()
 	{
 		if (!IsInstanceValid(_ownerPlayer)) return BaseSpread;
 
+		float calculatedSpread;
+
 		if (!_ownerPlayer.IsOnFloor()) 
 		{
-			return BaseSpread + MoveSpread * 1.5f;
+			calculatedSpread = BaseSpread + MoveSpread * 1.5f;
 		}
-
-		Vector2 inputDir = Input.GetVector("move_left", "move_right", "move_forward", "move_backward");
-		float speed = new Vector3(_ownerPlayer.Velocity.X, 0, _ownerPlayer.Velocity.Z).Length();
-
-		if (inputDir == Vector2.Zero || speed < 1.0f)
+		else
 		{
-			return BaseSpread;
+			Vector2 inputDir = Input.GetVector("move_left", "move_right", "move_forward", "move_backward");
+			float speed = new Vector3(_ownerPlayer.Velocity.X, 0, _ownerPlayer.Velocity.Z).Length();
+
+			if (inputDir == Vector2.Zero || speed < 1.0f)
+			{
+				calculatedSpread = BaseSpread;
+			}
+			else
+			{
+				calculatedSpread = BaseSpread + (speed / 7.0f) * MoveSpread;
+			}
 		}
 
-		return BaseSpread + (speed / 7.0f) * MoveSpread;
+		return _isZoomed ? calculatedSpread * ZoomedSpreadMultiplier : calculatedSpread;
 	}
 
 	protected virtual void TryShoot()
@@ -149,6 +226,23 @@ public partial class HitscanWeapon : RayCast3D
 		Rpc(nameof(ShowTracer), muzzlePos, targetPoint);
 	}
 
+	private void SetupScopeOverlay()
+	{
+		if (!HasScopeOverlay || ScopeTexture == null) return;
+
+		_scopeCanvas = new CanvasLayer { Visible = false };
+		_scopeRect = new TextureRect
+		{
+			Texture = ScopeTexture,
+			ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+			StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered
+		};
+		_scopeRect.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+
+		_scopeCanvas.AddChild(_scopeRect);
+		AddChild(_scopeCanvas);
+	}
+
 	private HealthComponent FindHealthComponent(Node startNode)
 	{
 		Node current = startNode;
@@ -170,6 +264,15 @@ public partial class HitscanWeapon : RayCast3D
 			current = current.GetParent();
 		}
 		return null;
+	}
+
+	public override void _ExitTree()
+	{
+		if (_isZoomed)
+		{
+			SetZoomState(false);
+			if (IsInstanceValid(_camera)) _camera.Fov = _defaultFov;
+		}
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
