@@ -1,10 +1,10 @@
 [gd_scene format=3 uid="uid://diwkoyanugu72"]
 
-[ext_resource type="Script" uid="uid://bppjypnh8blxj" path="res://HitscanWeapon.cs" id="1_c0pgd"]
+[ext_resource type="Script" uid="uid://bppjypnh8blxj" path="res://Scripts/Weapons/HitscanWeapon.cs" id="1_mkoqw"]
 
 [node name="WeaponRay" type="RayCast3D" unique_id=1150790789]
 target_position = Vector3(0, 0, -100)
-script = ExtResource("1_c0pgd")
+script = ExtResource("1_mkoqw")
 Damage = 5.0
 FireRate = 0.1
 RecoilUp = 0.1

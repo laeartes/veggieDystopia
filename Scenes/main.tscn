@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://cccf0cjs83778"]
 
-[ext_resource type="Script" uid="uid://xyx0ppvx5t6q" path="res://NetworkManager.cs" id="1_ig7tw"]
-[ext_resource type="PackedScene" uid="uid://darfe6h0bpnge" path="res://player.tscn" id="2_0xm2m"]
-[ext_resource type="PackedScene" uid="uid://ddycug0x7hrts" path="res://target_dummy.tscn" id="3_h2yge"]
+[ext_resource type="Script" uid="uid://xyx0ppvx5t6q" path="res://Scripts/Network/NetworkManager.cs" id="1_ig7tw"]
+[ext_resource type="PackedScene" uid="uid://darfe6h0bpnge" path="res://Scenes/player.tscn" id="2_0xm2m"]
+[ext_resource type="PackedScene" uid="uid://ddycug0x7hrts" path="res://Scenes/target_dummy.tscn" id="3_h2yge"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_0xm2m"]
 

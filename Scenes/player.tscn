@@ -1,16 +1,16 @@
 [gd_scene format=3 uid="uid://darfe6h0bpnge"]
 
-[ext_resource type="Script" uid="uid://tlwik70twbjk" path="res://Player.cs" id="1_4flbx"]
-[ext_resource type="Script" uid="uid://bf1fylrg5lp5k" path="res://PlayerHUD.cs" id="3_sweqy"]
-[ext_resource type="Script" uid="uid://crr1d7pgdpyg2" path="res://HealthComponent.cs" id="4_2hs0m"]
-[ext_resource type="Script" uid="uid://8ilabrph0hmf" path="res://KillFeed.cs" id="4_sweqy"]
-[ext_resource type="Script" uid="uid://dvvsfi1xyi0oh" path="res://Crosshair.cs" id="5_2hs0m"]
-[ext_resource type="Script" uid="uid://bv1yltjxie77c" path="res://ClassSelectUi.cs" id="5_dw050"]
-[ext_resource type="Script" uid="uid://vc3256ljrb3r" path="res://PlayerClassHandler.cs" id="6_2hs0m"]
-[ext_resource type="Resource" uid="uid://cy5m8w3yuul31" path="res://ScoutClass.tres" id="7_b26j0"]
-[ext_resource type="Resource" uid="uid://fhxrkpudwo3o" path="res://AssaultClass.tres" id="8_b26j0"]
-[ext_resource type="Script" uid="uid://1nv1wyote387" path="res://AbilitySlotUI.cs" id="8_nvl01"]
-[ext_resource type="Script" uid="uid://catpoqbg2avl3" path="res://PlayerAbilityHandler.cs" id="10_n7ghd"]
+[ext_resource type="Script" uid="uid://tlwik70twbjk" path="res://Scripts/Characters/Player.cs" id="1_gymyn"]
+[ext_resource type="Script" uid="uid://bf1fylrg5lp5k" path="res://Scripts/UI/PlayerHUD.cs" id="2_gymyn"]
+[ext_resource type="Script" uid="uid://8ilabrph0hmf" path="res://Scripts/UI/KillFeed.cs" id="3_pu2lt"]
+[ext_resource type="Script" uid="uid://dvvsfi1xyi0oh" path="res://Scripts/UI/Crosshair.cs" id="4_ukyrk"]
+[ext_resource type="Script" uid="uid://bv1yltjxie77c" path="res://Scripts/UI/ClassSelectUi.cs" id="5_7dp3o"]
+[ext_resource type="Resource" uid="uid://fhxrkpudwo3o" path="res://Resources/AssaultClass.tres" id="6_fd4e3"]
+[ext_resource type="Resource" uid="uid://cy5m8w3yuul31" path="res://Resources/ScoutClass.tres" id="7_qqcod"]
+[ext_resource type="Script" uid="uid://1nv1wyote387" path="res://Scripts/UI/AbilitySlotUI.cs" id="8_h4iuc"]
+[ext_resource type="Script" uid="uid://crr1d7pgdpyg2" path="res://Scripts/Weapons/HealthComponent.cs" id="9_gymyn"]
+[ext_resource type="Script" uid="uid://vc3256ljrb3r" path="res://Scripts/Handlers/PlayerClassHandler.cs" id="10_gymyn"]
+[ext_resource type="Script" uid="uid://catpoqbg2avl3" path="res://Scripts/Handlers/PlayerAbilityHandler.cs" id="11_pu2lt"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_fimxg"]
 
@@ -27,7 +27,7 @@ properties/1/replication_mode = 1
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_nvl01"]
 
 [node name="Player" type="CharacterBody3D" unique_id=615997359]
-script = ExtResource("1_4flbx")
+script = ExtResource("1_gymyn")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=671661022]
 shape = SubResource("CapsuleShape3D_fimxg")
@@ -53,7 +53,7 @@ replication_config = SubResource("SceneReplicationConfig_4flbx")
 target_position = Vector3(0, 2, 0)
 
 [node name="HUD" type="CanvasLayer" parent="." unique_id=1213129993 node_paths=PackedStringArray("_tacticalSlot", "_ultimateSlot")]
-script = ExtResource("3_sweqy")
+script = ExtResource("2_gymyn")
 _tacticalSlot = NodePath("Abilities/Tactical")
 _ultimateSlot = NodePath("Abilities/Ultimate")
 
@@ -76,7 +76,7 @@ anchor_right = 1.0
 offset_left = -211.0
 offset_bottom = 76.0
 grow_horizontal = 0
-script = ExtResource("4_sweqy")
+script = ExtResource("3_pu2lt")
 
 [node name="Crosshair" type="Control" parent="HUD" unique_id=1106484586]
 layout_mode = 3
@@ -91,15 +91,15 @@ offset_right = -576.0
 offset_bottom = -324.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("5_2hs0m")
+script = ExtResource("4_ukyrk")
 
 [node name="ClassSelectUI" type="Control" parent="HUD" unique_id=711231253]
 layout_mode = 3
 anchors_preset = 0
 offset_right = 1152.0
 offset_bottom = 647.0
-script = ExtResource("5_dw050")
-AvailableClasses = Array[Object]([ExtResource("8_b26j0"), ExtResource("7_b26j0")])
+script = ExtResource("5_7dp3o")
+AvailableClasses = Array[Object]([ExtResource("6_fd4e3"), ExtResource("7_qqcod")])
 
 [node name="VBoxContainer" type="VBoxContainer" parent="HUD/ClassSelectUI" unique_id=728325246]
 layout_mode = 1
@@ -131,7 +131,7 @@ grow_vertical = 0
 [node name="Tactical" type="Control" parent="HUD/Abilities" unique_id=1262064743 node_paths=PackedStringArray("_iconRect", "_cooldownProgress", "_cooldownLabel", "_keyLabel")]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
-script = ExtResource("8_nvl01")
+script = ExtResource("8_h4iuc")
 _iconRect = NodePath("TextureRect")
 _cooldownProgress = NodePath("TextureProgressBar")
 _cooldownLabel = NodePath("Label")
@@ -186,7 +186,7 @@ horizontal_alignment = 1
 [node name="Ultimate" type="Control" parent="HUD/Abilities" unique_id=157618673 node_paths=PackedStringArray("_iconRect", "_cooldownProgress", "_cooldownLabel", "_keyLabel")]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
-script = ExtResource("8_nvl01")
+script = ExtResource("8_h4iuc")
 _iconRect = NodePath("TextureRect")
 _cooldownProgress = NodePath("TextureProgressBar")
 _cooldownLabel = NodePath("Label")
@@ -239,11 +239,11 @@ grow_vertical = 0
 horizontal_alignment = 1
 
 [node name="HealthComponent" type="Node" parent="." unique_id=1401377186]
-script = ExtResource("4_2hs0m")
+script = ExtResource("9_gymyn")
 
 [node name="PlayerClassHandler" type="Node" parent="." unique_id=1272328455]
-script = ExtResource("6_2hs0m")
-DefaultClass = ExtResource("8_b26j0")
+script = ExtResource("10_gymyn")
+DefaultClass = ExtResource("6_fd4e3")
 
 [node name="PlayerAbilityHandler" type="Node" parent="." unique_id=1039822109]
-script = ExtResource("10_n7ghd")
+script = ExtResource("11_pu2lt")

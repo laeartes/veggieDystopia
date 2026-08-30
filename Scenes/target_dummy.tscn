@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://ddycug0x7hrts"]
 
-[ext_resource type="Script" uid="uid://d2kj5b7y37e1p" path="res://TargetDummy.cs" id="1_qoivk"]
-[ext_resource type="Script" uid="uid://crr1d7pgdpyg2" path="res://HealthComponent.cs" id="2_35rw3"]
+[ext_resource type="Script" uid="uid://d2kj5b7y37e1p" path="res://Scripts/Characters/TargetDummy.cs" id="1_cl2fg"]
+[ext_resource type="Script" uid="uid://crr1d7pgdpyg2" path="res://Scripts/Weapons/HealthComponent.cs" id="2_oe3qq"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_fimxg"]
 
@@ -27,7 +27,7 @@ refraction_texture = SubResource("NoiseTexture2D_obh1m")
 material = SubResource("StandardMaterial3D_loteg")
 
 [node name="TargetDummy" type="StaticBody3D" unique_id=2016940902]
-script = ExtResource("1_qoivk")
+script = ExtResource("1_cl2fg")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1350951833]
 shape = SubResource("CapsuleShape3D_fimxg")
@@ -36,4 +36,4 @@ shape = SubResource("CapsuleShape3D_fimxg")
 mesh = SubResource("CapsuleMesh_fimxg")
 
 [node name="HealthComponent" type="Node" parent="." unique_id=567410441]
-script = ExtResource("2_35rw3")
+script = ExtResource("2_oe3qq")
