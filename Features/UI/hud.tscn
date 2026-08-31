@@ -1,18 +1,18 @@
 [gd_scene format=3 uid="uid://cugkos3r5b2r"]
 
-[ext_resource type="Script" uid="uid://bf1fylrg5lp5k" path="res://Features/UI/PlayerHUD.cs" id="1_l7vnu"]
-[ext_resource type="Script" uid="uid://8ilabrph0hmf" path="res://Features/UI/KillFeed.cs" id="2_txuux"]
-[ext_resource type="Script" uid="uid://dvvsfi1xyi0oh" path="res://Features/UI/Crosshair.cs" id="3_d47mj"]
-[ext_resource type="Script" uid="uid://bv1yltjxie77c" path="res://Features/UI/ClassSelectUi.cs" id="4_wrnpm"]
-[ext_resource type="Resource" uid="uid://fhxrkpudwo3o" path="res://Features/Classes/AssaultClass.tres" id="5_275no"]
-[ext_resource type="Resource" uid="uid://cy5m8w3yuul31" path="res://Features/Classes/ScoutClass.tres" id="6_th8h0"]
-[ext_resource type="Script" uid="uid://1nv1wyote387" path="res://Features/UI/AbilitySlotUI.cs" id="7_83n6f"]
-[ext_resource type="Script" uid="uid://c37iry66kqfv8" path="res://Features/UI/SettingsMenu.cs" id="8_txuux"]
+[ext_resource type="Script" uid="uid://bf1fylrg5lp5k" path="res://Features/UI/PlayerHUD.cs" id="1_l6m1m"]
+[ext_resource type="Script" uid="uid://8ilabrph0hmf" path="res://Features/UI/KillFeed.cs" id="2_j7usw"]
+[ext_resource type="Script" uid="uid://dvvsfi1xyi0oh" path="res://Features/UI/Crosshair.cs" id="3_jm4g3"]
+[ext_resource type="Script" uid="uid://bv1yltjxie77c" path="res://Features/UI/ClassSelectUi.cs" id="4_68exj"]
+[ext_resource type="Resource" uid="uid://fhxrkpudwo3o" path="res://Features/Classes/AssaultClass.tres" id="5_u3vfy"]
+[ext_resource type="Resource" uid="uid://cy5m8w3yuul31" path="res://Features/Classes/ScoutClass.tres" id="6_ehj40"]
+[ext_resource type="Script" uid="uid://1nv1wyote387" path="res://Features/UI/AbilitySlotUI.cs" id="7_0ufan"]
+[ext_resource type="Script" uid="uid://c37iry66kqfv8" path="res://Features/UI/SettingsMenu.cs" id="8_wsi8t"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_nvl01"]
 
 [node name="HUD" type="CanvasLayer" unique_id=1718434514 node_paths=PackedStringArray("_tacticalSlot", "_ultimateSlot")]
-script = ExtResource("1_l7vnu")
+script = ExtResource("1_l6m1m")
 _tacticalSlot = NodePath("Abilities/Tactical")
 _ultimateSlot = NodePath("Abilities/Ultimate")
 
@@ -35,7 +35,7 @@ anchor_right = 1.0
 offset_left = -211.0
 offset_bottom = 76.0
 grow_horizontal = 0
-script = ExtResource("2_txuux")
+script = ExtResource("2_j7usw")
 
 [node name="Crosshair" type="Control" parent="." unique_id=2140720513]
 layout_mode = 3
@@ -50,7 +50,7 @@ offset_right = -576.0
 offset_bottom = -324.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("3_d47mj")
+script = ExtResource("3_jm4g3")
 
 [node name="ClassSelectUI" type="Control" parent="." unique_id=1910630516]
 layout_mode = 3
@@ -59,8 +59,8 @@ offset_left = 40.0
 offset_top = -38.0
 offset_right = 1192.0
 offset_bottom = 609.0
-script = ExtResource("4_wrnpm")
-AvailableClasses = Array[Object]([ExtResource("5_275no"), ExtResource("6_th8h0")])
+script = ExtResource("4_68exj")
+AvailableClasses = Array[Object]([ExtResource("5_u3vfy"), ExtResource("6_ehj40")])
 
 [node name="VBoxContainer" type="VBoxContainer" parent="ClassSelectUI" unique_id=44951849]
 layout_mode = 1
@@ -92,7 +92,7 @@ grow_vertical = 0
 [node name="Tactical" type="Control" parent="Abilities" unique_id=1776001868 node_paths=PackedStringArray("_iconRect", "_cooldownProgress", "_cooldownLabel", "_keyLabel")]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
-script = ExtResource("7_83n6f")
+script = ExtResource("7_0ufan")
 _iconRect = NodePath("TextureRect")
 _cooldownProgress = NodePath("TextureProgressBar")
 _cooldownLabel = NodePath("Label")
@@ -147,7 +147,7 @@ horizontal_alignment = 1
 [node name="Ultimate" type="Control" parent="Abilities" unique_id=1311294582 node_paths=PackedStringArray("_iconRect", "_cooldownProgress", "_cooldownLabel", "_keyLabel")]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
-script = ExtResource("7_83n6f")
+script = ExtResource("7_0ufan")
 _iconRect = NodePath("TextureRect")
 _cooldownProgress = NodePath("TextureProgressBar")
 _cooldownLabel = NodePath("Label")
@@ -204,7 +204,7 @@ layout_mode = 3
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
-script = ExtResource("8_txuux")
+script = ExtResource("8_wsi8t")
 
 [node name="Panel" type="Panel" parent="SettingsMenu" unique_id=84062856]
 layout_mode = 1
