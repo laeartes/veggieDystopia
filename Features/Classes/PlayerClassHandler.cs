@@ -36,25 +36,36 @@ public partial class PlayerClassHandler : Node
 		_player.CrouchSpeed = CurrentClass.CrouchSpeed;
 		_player.JumpForce = CurrentClass.JumpForce;
 		_player.Accel = CurrentClass.Accel;
+
 		PlayerAbilityHandler abilityHandler = _player.GetNodeOrNull<PlayerAbilityHandler>("PlayerAbilityHandler");
-		if (abilityHandler != null && newClass != null)
+		if (abilityHandler != null)
 		{
 			abilityHandler.SetupAbilities(newClass.TacticalAbility, newClass.UltimateAbility);
 		}
-		EquipWeapon(CurrentClass.PrimaryWeaponPrefab);
-		GD.Print($"Applied class: {newClass.ClassName} | New MaxSpeed: {_player.MaxSpeed}");
+
+		// Call RPC across all peers so node trees match everywhere
+		if (newClass.PrimaryWeaponPrefab != null)
+		{
+			Rpc(nameof(RpcEquipWeapon), newClass.PrimaryWeaponPrefab.ResourcePath);
+		}
 	}
 
-	private void EquipWeapon(PackedScene weaponScene)
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void RpcEquipWeapon(string scenePath)
 	{
-		if (_weaponHolder == null || weaponScene == null) return;
+		if (_weaponHolder == null) return;
 
 		foreach (Node child in _weaponHolder.GetChildren())
 		{
 			child.QueueFree();
 		}
 
+		PackedScene weaponScene = GD.Load<PackedScene>(scenePath);
+		if (weaponScene == null) return;
+
 		Node weaponInstance = weaponScene.Instantiate();
+		// Give explicit static name to keep NodePaths identical across all clients
+		weaponInstance.Name = "CurrentWeapon"; 
 		_weaponHolder.AddChild(weaponInstance);
 	}
 }
