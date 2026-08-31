@@ -14,6 +14,14 @@ public partial class HealthComponent : Node
 	public override void _Ready()
 	{
 		CurrentHealth = MaxHealth;
+		EmitSignal(SignalName.HealthChanged, CurrentHealth, MaxHealth);
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void ResetHealth()
+	{
+		CurrentHealth = MaxHealth;
+		EmitSignal(SignalName.HealthChanged, CurrentHealth, MaxHealth);
 	}
 	public void SetMaxHealth(float newMaxHealth, bool resetCurrent = true)
 	{

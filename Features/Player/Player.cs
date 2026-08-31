@@ -11,7 +11,6 @@ public partial class Player : CharacterBody3D
 	[Export] public float AirCap = 1.2f;
 	[Export] public float Gravity = 18.0f;
 	[Export] public float JumpForce = 6.5f;
-	[Export] public float MouseSensitivity = 0.003f;
 	[Export] public float Friction = 4f;
 	[Export] public float StopSpeed = 1.5f; 
 
@@ -72,6 +71,11 @@ public partial class Player : CharacterBody3D
 			_camera.MakeCurrent();
 			_mesh.Hide(); // Hide local capsule mesh
 			Input.MouseMode = Input.MouseModeEnum.Captured;
+			_camera = GetNodeOrNull<Camera3D>("Head/Camera3D");
+			if (_camera != null && SettingsManager.Instance != null)
+			{
+				_camera.Fov = SettingsManager.Instance.Fov;
+			}
 		}
 		else
 		{
@@ -79,27 +83,37 @@ public partial class Player : CharacterBody3D
 		}
 	}
 
-	private void RespawnAtRandomPoint()
+	public void RespawnAtRandomPoint()
 	{
-		if (!IsMultiplayerAuthority()) return;
-
-		Node spawnContainer = GetTree().Root.FindChild("SpawnPoints", recursive: true, owned: false);
-
-		if (spawnContainer != null && spawnContainer.GetChildCount() > 0)
+		// Calculate position on the authority client
+		if (IsMultiplayerAuthority())
 		{
-			var children = spawnContainer.GetChildren();
-			int randomIndex = (int)(GD.Randi() % children.Count);
-			
-			if (children[randomIndex] is Node3D spawnMarker)
-			{
-				GlobalPosition = spawnMarker.GlobalPosition;
-				Velocity = Vector3.Zero;
-				return;
-			}
-		}
+			Vector3 targetSpawnPos = Vector3.Zero;
+			Node spawnContainer = GetTree().Root.FindChild("SpawnPoints", recursive: true, owned: false);
 
-		// Fallback
-		GlobalPosition = new Vector3(0, 5, 0);
+			if (spawnContainer != null && spawnContainer.GetChildCount() > 0)
+			{
+				var children = spawnContainer.GetChildren();
+				int randomIndex = (int)(GD.Randi() % children.Count);
+
+				if (children[randomIndex] is Node3D spawnMarker)
+				{
+					targetSpawnPos = spawnMarker.GlobalPosition;
+				}
+			}
+			else
+			{
+				targetSpawnPos = new Vector3(0, 5, 0);
+			}
+
+			Rpc(nameof(SyncRespawnTransform), targetSpawnPos);
+		}
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void SyncRespawnTransform(Vector3 position)
+	{
+		GlobalPosition = position;
 		Velocity = Vector3.Zero;
 	}
 
@@ -125,39 +139,61 @@ public partial class Player : CharacterBody3D
 
 		if (@event is InputEventMouseMotion mouseMotion && Input.MouseMode == Input.MouseModeEnum.Captured)
 		{
-			RotateY(-mouseMotion.Relative.X * MouseSensitivity);
+			float sens = SettingsManager.Instance.InternalMouseSensitivity;
+
+			RotateY(-mouseMotion.Relative.X * sens);
 			
-			_cameraRotationX -= mouseMotion.Relative.Y * MouseSensitivity;
+			_cameraRotationX -= mouseMotion.Relative.Y * sens;
 			_cameraRotationX = Mathf.Clamp(_cameraRotationX, Mathf.DegToRad(-89f), Mathf.DegToRad(89f));
 			_head.Rotation = new Vector3(_cameraRotationX, _head.Rotation.Y, _head.Rotation.Z);
 		}
 		
 		if (@event is InputEventMouseButton mouseBtn && mouseBtn.Pressed)
 		{
-			// Check if class menu is visible
-			ClassSelectUi menu = GetNodeOrNull<ClassSelectUi>("HUD/ClassSelectUI");
-			if (menu != null && menu.Visible) 
-			{
-				return; // Don't capture mouse back while picking a class
-			}
+			ClassSelectUi classMenu = GetNodeOrNull<ClassSelectUi>("HUD/ClassSelectUI");
+			SettingsMenu settingsMenu = GetNodeOrNull<SettingsMenu>("HUD/SettingsMenu");
+
+			bool isAnyMenuOpen = (classMenu != null && classMenu.Visible) || 
+								(settingsMenu != null && settingsMenu.Visible);
+
+			if (isAnyMenuOpen) return;
 
 			if (Input.MouseMode == Input.MouseModeEnum.Visible)
 			{
 				Input.MouseMode = Input.MouseModeEnum.Captured;
 			}
 		}
-		
+				
 		if (@event.IsActionPressed("ui_cancel"))
 		{
-			Input.MouseMode = Input.MouseModeEnum.Visible;
-		}
-		if (@event is InputEventMouseButton mouseButton && mouseButton.Pressed)
-		{
-			if (Input.MouseMode == Input.MouseModeEnum.Visible)
+			ClassSelectUi classMenu = GetNodeOrNull<ClassSelectUi>("HUD/ClassSelectUI");
+			SettingsMenu settingsMenu = GetNodeOrNull<SettingsMenu>("HUD/SettingsMenu");
+
+			bool closedAny = false;
+
+			if (classMenu != null && classMenu.Visible)
+			{
+				classMenu.Visible = false;
+				closedAny = true;
+			}
+
+			if (settingsMenu != null && settingsMenu.Visible)
+			{
+				settingsMenu.Visible = false;
+				closedAny = true;
+			}
+
+			// Only release mouse mode if no menus were open to be closed
+			if (!closedAny)
+			{
+				Input.MouseMode = Input.MouseModeEnum.Visible;
+			}
+			else
 			{
 				Input.MouseMode = Input.MouseModeEnum.Captured;
 			}
 		}
+
 		// Buffer jump input on wheel scroll or keypress
 		if (@event.IsActionPressed("jump"))
 		{
@@ -269,4 +305,36 @@ public partial class Player : CharacterBody3D
 		accelSpeed = Mathf.Min(accelSpeed, addSpeed);
 		return currentVel + wishDir * accelSpeed;
 	}
+
+// Call this from your ClassSelectUI button clicks locally
+	public void SelectClass(string newClassId)
+	{
+		if (!IsMultiplayerAuthority()) return;
+
+		// Trigger on server/peers
+		Rpc(nameof(RpcChangeClassAndRespawn), newClassId);
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void RpcChangeClassAndRespawn(string classId)
+	{
+		// 1. Reset HealthComponent across all clients
+		HealthComponent health = GetNodeOrNull<HealthComponent>("HealthComponent");
+		if (health != null)
+		{
+			health.ResetHealth();
+		}
+
+		// 2. Clear weapon zoom if aiming down sights
+		HitscanWeapon activeWeapon = GetNodeOrNull<HitscanWeapon>("Head/HitscanWeapon");
+		if (activeWeapon != null)
+		{
+			activeWeapon.SetZoomState(false);
+		}
+
+		// 3. Move player to random spawn marker
+		RespawnAtRandomPoint();
+	}
+
 }
+

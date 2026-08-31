@@ -42,6 +42,8 @@ public partial class ClassSelectUi : Control
 		}
 	}
 
+	
+
 	public void ToggleMenu(bool show)
 	{
 		Visible = show;
@@ -78,6 +80,9 @@ public partial class ClassSelectUi : Control
 	{
 		GD.Print($"[ClassSelectUi] Button pressed: {selectedClass.ClassName}");
 		
+		// Find the local owning player
+		Player localPlayer = GetNodeAncestor<Player>(this);
+
 		if (_classHandler != null)
 		{
 			_classHandler.ApplyClass(selectedClass);
@@ -87,7 +92,15 @@ public partial class ClassSelectUi : Control
 			GD.PrintErr("[ClassSelectUi] Cannot apply class: _classHandler is null!");
 		}
 
+		// Trigger local player class change & respawn logic
+		if (localPlayer != null && localPlayer.IsMultiplayerAuthority())
+		{
+			localPlayer.SelectClass(selectedClass.ClassName);
+		}
+
+		// Close menu and re-capture mouse
 		ToggleMenu(false);
+		Input.MouseMode = Input.MouseModeEnum.Captured;
 	}
 
 	private T GetNodeAncestor<T>(Node startNode) where T : Node

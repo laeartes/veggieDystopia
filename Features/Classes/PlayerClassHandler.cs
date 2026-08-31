@@ -23,6 +23,7 @@ public partial class PlayerClassHandler : Node
 	public void ApplyClass(PlayerClassResource newClass)
 	{
 		if (_player == null || newClass == null) return;
+		if (!_player.IsMultiplayerAuthority()) return; // Only owner initiates class swap
 
 		CurrentClass = newClass;
 
@@ -43,7 +44,6 @@ public partial class PlayerClassHandler : Node
 			abilityHandler.SetupAbilities(newClass.TacticalAbility, newClass.UltimateAbility);
 		}
 
-		// Call RPC across all peers so node trees match everywhere
 		if (newClass.PrimaryWeaponPrefab != null)
 		{
 			Rpc(nameof(RpcEquipWeapon), newClass.PrimaryWeaponPrefab.ResourcePath);

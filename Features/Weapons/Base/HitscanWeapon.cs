@@ -36,8 +36,8 @@ public partial class HitscanWeapon : RayCast3D
 	private float _targetRecoilPitch = 0f;
 	private float _currentRecoilPitch = 0f;
 
-	private float _defaultFov = 75.0f;
-	private float _targetFov = 75.0f;
+	private float _defaultFov = 90.0f;
+	private float _targetFov = 90.0f;
 	private bool _isZoomed = false;
 	private CanvasLayer _scopeCanvas;
 	private TextureRect _scopeRect;
@@ -46,7 +46,7 @@ public partial class HitscanWeapon : RayCast3D
 	public override void _Ready()
 	{
 		_ownerPlayer = GetNodeAncestor<Player>(this);
-		
+
 		if (IsInstanceValid(_ownerPlayer))
 		{
 			// Explicitly set multiplayer authority to match the owning player
@@ -60,17 +60,34 @@ public partial class HitscanWeapon : RayCast3D
 
 		if (IsInstanceValid(_camera))
 		{
-			_defaultFov = _camera.Fov;
+			// Read default FOV from global settings
+			_defaultFov = SettingsManager.Instance != null ? SettingsManager.Instance.Fov : _camera.Fov;
 			_targetFov = _defaultFov;
+			_camera.Fov = _defaultFov;
+		}
+
+		// Subscribe to live FOV setting changes
+		if (SettingsManager.Instance != null)
+		{
+			SettingsManager.Instance.OnFovChanged += HandleGlobalFovChange;
 		}
 
 		SetupScopeOverlay();
 	}
 
+	private void HandleGlobalFovChange(float newFov)
+	{
+		_defaultFov = newFov;
+		if (!_isZoomed)
+		{
+			_targetFov = _defaultFov;
+		}
+	}
+
 	public override void _Process(double delta)
 	{
 		if (IsInstanceValid(_ownerPlayer) && !_ownerPlayer.IsMultiplayerAuthority()) return;
-
+		if (Input.MouseMode != Input.MouseModeEnum.Captured) return;
 		float dt = (float)delta;
 
 		if (EnableZoom)
@@ -93,7 +110,7 @@ public partial class HitscanWeapon : RayCast3D
 		CurrentSpread = CalculateCurrentSpread();
 
 		_targetRecoilPitch = Mathf.Lerp(_targetRecoilPitch, 0f, dt * RecoilRecoverySpeed);
-		
+
 		float newPitch = Mathf.Lerp(_currentRecoilPitch, _targetRecoilPitch, dt * 25f);
 		float pitchDelta = newPitch - _currentRecoilPitch;
 		_currentRecoilPitch = newPitch;
@@ -139,7 +156,7 @@ public partial class HitscanWeapon : RayCast3D
 
 		float calculatedSpread;
 
-		if (!_ownerPlayer.IsOnFloor()) 
+		if (!_ownerPlayer.IsOnFloor())
 		{
 			calculatedSpread = BaseSpread + MoveSpread * 1.5f;
 		}
@@ -183,12 +200,12 @@ public partial class HitscanWeapon : RayCast3D
 
 		Vector3 targetPoint;
 		PhysicsDirectSpaceState3D spaceState = GetWorld3D().DirectSpaceState;
-		
+
 		PhysicsRayQueryParameters3D query = PhysicsRayQueryParameters3D.Create(
-			rayOrigin, 
+			rayOrigin,
 			rayOrigin + fireDirection * 500f
 		);
-		
+
 		query.CollisionMask = CollisionMask;
 		if (IsInstanceValid(_ownerPlayer))
 		{
@@ -274,6 +291,11 @@ public partial class HitscanWeapon : RayCast3D
 
 	public override void _ExitTree()
 	{
+		if (SettingsManager.Instance != null)
+		{
+			SettingsManager.Instance.OnFovChanged -= HandleGlobalFovChange;
+		}
+
 		if (_isZoomed)
 		{
 			SetZoomState(false);
@@ -308,7 +330,7 @@ public partial class HitscanWeapon : RayCast3D
 		GetTree().Root.AddChild(beam);
 
 		beam.GlobalPosition = start.Lerp(end, 0.5f);
-		
+
 		if (start.DistanceSquaredTo(end) > 0.001f)
 		{
 			beam.LookAt(end, Vector3.Up);
