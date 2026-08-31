@@ -55,8 +55,10 @@ public partial class PlayerClassHandler : Node
 	{
 		if (_weaponHolder == null) return;
 
+		// Immediately detach old nodes so names don't conflict
 		foreach (Node child in _weaponHolder.GetChildren())
 		{
+			_weaponHolder.RemoveChild(child);
 			child.QueueFree();
 		}
 
@@ -64,8 +66,13 @@ public partial class PlayerClassHandler : Node
 		if (weaponScene == null) return;
 
 		Node weaponInstance = weaponScene.Instantiate();
-		// Give explicit static name to keep NodePaths identical across all clients
 		weaponInstance.Name = "CurrentWeapon"; 
+		
+		// 1. Add to tree first so NodePath resolves
 		_weaponHolder.AddChild(weaponInstance);
+
+		// 2. Set authority AFTER adding to tree
+		int ownerAuth = _player.GetMultiplayerAuthority();
+		weaponInstance.SetMultiplayerAuthority(ownerAuth, recursive: true);
 	}
 }

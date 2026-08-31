@@ -45,15 +45,18 @@ public partial class HitscanWeapon : RayCast3D
 
 	public override void _Ready()
 	{
-		_muzzle = GetNodeOrNull<Marker3D>("Muzzle") ?? GetNodeOrNull<Marker3D>("../Muzzle");
 		_ownerPlayer = GetNodeAncestor<Player>(this);
-		_camera = _ownerPlayer?.GetNodeOrNull<Camera3D>("Head/Camera3D");
-
+		
 		if (IsInstanceValid(_ownerPlayer))
 		{
+			// Explicitly set multiplayer authority to match the owning player
+			SetMultiplayerAuthority(_ownerPlayer.GetMultiplayerAuthority());
 			AddException(_ownerPlayer);
 			_basePlayerMaxSpeed = _ownerPlayer.MaxSpeed;
 		}
+
+		_muzzle = GetNodeOrNull<Marker3D>("Muzzle") ?? GetNodeOrNull<Marker3D>("../Muzzle");
+		_camera = _ownerPlayer?.GetNodeOrNull<Camera3D>("Head/Camera3D");
 
 		if (IsInstanceValid(_camera))
 		{
@@ -222,7 +225,10 @@ public partial class HitscanWeapon : RayCast3D
 			_ownerPlayer.RotateY((float)GD.RandRange(-RecoilSide, RecoilSide));
 		}
 
-		Vector3 muzzlePos = IsInstanceValid(_muzzle) ? _muzzle.GlobalPosition : GlobalPosition;
+		// Determine valid muzzle position or fall back to camera origin
+		Vector3 muzzlePos = IsInstanceValid(_muzzle) ? _muzzle.GlobalPosition : rayOrigin;
+
+		// Call RPC across peers
 		Rpc(nameof(ShowTracer), muzzlePos, targetPoint);
 	}
 
